@@ -10,11 +10,13 @@ namespace GK3D
     {
         public int X;
         public int Y;
+        public double Z;
 
-        public Vertex(int x, int y)
+        public Vertex(int x, int y, double z)
         {
             X = x;
             Y = y;
+            Z = z;
         }
 
         public static double Dist(Vertex v, int x, int y)

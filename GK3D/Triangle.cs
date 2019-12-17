@@ -9,18 +9,44 @@ namespace GK3D
 {
     public class Triangle
     {
-        public Point[] points;
+        public Vertex[] points;
+        public Color color;
 
-        public Triangle(Point _p1, Point _p2, Point _p3)
+        public Triangle(Vertex _p1, Vertex _p2, Vertex _p3, Color c)
         {
-            points = new Point[3] { _p1, _p2, _p3 };
+            points = new Vertex[3] { _p1, _p2, _p3 };
+            color = c;
         }
 
-        public void Draw(Graphics g, Pen pen)
+        public double Z(int x, int y)
         {
-            g.DrawLine(pen, points[0].X, points[0].Y, points[1].X, points[1].Y);
-            g.DrawLine(pen, points[1].X, points[1].Y, points[2].X, points[2].Y);
-            g.DrawLine(pen, points[2].X, points[2].Y, points[0].X, points[0].Y);
+            double denominator = (points[1].Y - points[2].Y) * (points[0].X - points[2].X) + (points[2].X - points[1].X) * (points[0].Y - points[2].Y);
+            var w0 = ((points[1].Y - points[2].Y) * (x - points[2].X) + (points[2].X - points[1].X) * (y - points[2].Y)) / denominator;
+            var w1 = ((points[2].Y - points[0].Y) * (x - points[2].X) + (points[0].X - points[2].X) * (y - points[2].Y)) / denominator;
+            var w2 = 1 - w1 - w0;
+
+            return (w0 * points[0].Z + w1 * points[1].Z + w2 * points[2].Z);
+
+            var distances = new double[3]
+            {
+                Vertex.Dist(points[0], x, y),
+                Vertex.Dist(points[1], x, y),
+                Vertex.Dist(points[2], x, y)
+            };
+
+            var weights = new double[3]
+            {
+                //distances[1] * distances[2],
+                //distances[0] * distances[2],
+                //distances[0] * distances[1]
+                1 / distances[0],
+                1 / distances[1],
+                1 / distances[2]
+            };
+
+            double sum = weights.Sum();
+
+            return (points[0].Z * weights[0] + points[1].Z * weights[1] + points[2].Z * weights[2]) / sum;
         }
 
         public int[] GetSortedIndexes()
@@ -95,10 +121,10 @@ namespace GK3D
         public int ymax;
         public float x;
         public float xd;
-        public Point p1;
-        public Point p2;
+        public Vertex p1;
+        public Vertex p2;
 
-        public AETNode(Point _p1, Point _p2)
+        public AETNode(Vertex _p1, Vertex _p2)
         {
             p1 = _p1;
             p2 = _p2;

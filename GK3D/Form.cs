@@ -14,27 +14,33 @@ namespace GK3D
 {
     public partial class Form : System.Windows.Forms.Form
     {
-        ProjectionMatrix projectionMatrix;
-        Matrix<double> viewMatrix;
-        Matrix<double> modelMatrix;
         DirectBitmap canvas;
+        List<Object> objects;
         List<Vector<double>> points;
-        List<Triangle> triangles;
         Timer timer;
         double i = 0;
+        double[,] zBuffor;
 
         public Form()
         {
             InitializeComponent();
 
-            projectionMatrix = new ProjectionMatrix((double)pictureBox.Height / (double)pictureBox.Width);
-
             canvas = new DirectBitmap(pictureBox.Width, pictureBox.Height);
 
-            InitializeTriangles();
+            ReinitializeZBuffor();
 
-            InitializeViewMatrix();
-            InitializeModelMatrix();
+            objects = new List<Object>();
+
+            objects.Add(new Object((double)pictureBox.Height / pictureBox.Width));
+            objects.Add(new Object((double)pictureBox.Height / pictureBox.Width));
+
+            objects[0].viewMatrix = InitializeViewMatrix();
+            objects[0].modelMatrix = InitializeModelMatrix1();
+
+            objects[1].viewMatrix = InitializeViewMatrix();
+            objects[1].modelMatrix = InitializeModelMatrix2();
+
+            InitializeTriangles();
 
             timer = new Timer();
             timer.Interval = 33;
@@ -42,9 +48,26 @@ namespace GK3D
             timer.Start();
         }
 
-        private void InitializeViewMatrix()
+        private void ReinitializeZBuffor()
         {
-            viewMatrix = DenseMatrix.OfArray(
+            zBuffor = new double[pictureBox.Width, pictureBox.Height];
+            ClearZBuffor();
+        }
+       
+        private void ClearZBuffor()
+        {
+            for (int i = 0; i < pictureBox.Width; i++)
+            {
+                for (int j = 0; j < pictureBox.Height; j++)
+                {
+                    zBuffor[i, j] = 1;
+                }
+            }
+        }
+
+        private Matrix<double> InitializeViewMatrix()
+        {
+            return DenseMatrix.OfArray(
                 new double[4, 4]
                 {
                     { 0, 1, 0, -0.5 },
@@ -55,14 +78,27 @@ namespace GK3D
             );
         }
 
-        private void InitializeModelMatrix()
+        private Matrix<double> InitializeModelMatrix1()
         {
-            modelMatrix = DenseMatrix.OfArray(
+            return DenseMatrix.OfArray(
                 new double[4, 4]
                 {
                     { 1, 0, 0, 0.5 },
                     { 0, 1, 0, 0.4 },
                     { 0, 0, 1, 0.3 },
+                    { 0, 0, 0, 1 }
+                }
+            );
+        }
+
+        private Matrix<double> InitializeModelMatrix2()
+        {
+            return DenseMatrix.OfArray(
+                new double[4, 4]
+                {
+                    { 1, 0, 0, 0 },
+                    { 0, 1, 0, 0 },
+                    { 0, 0, 1, 0 },
                     { 0, 0, 0, 1 }
                 }
             );
@@ -79,65 +115,86 @@ namespace GK3D
             points.Add(Vector<double>.Build.Dense(new double[4] { 1, 0, 1, 1 }));
             points.Add(Vector<double>.Build.Dense(new double[4] { 1, 1, 1, 1 }));
             points.Add(Vector<double>.Build.Dense(new double[4] { 0, 1, 1, 1 }));
+
+            Random random = new Random();
+            foreach (var ob in objects)
+            {
+                ob.triangles = new List<Triangle>();
+                for (int i = 0; i < 6; i++)
+                {
+                    var color = Color.FromArgb(random.Next(256), random.Next(256), random.Next(256));
+                    ob.triangles.Add(new Triangle(new Vertex(0, 0, 0), new Vertex(0, 0, 0), new Vertex(0, 0, 0), color));
+                    ob.triangles.Add(new Triangle(new Vertex(0, 0, 0), new Vertex(0, 0, 0), new Vertex(0, 0, 0), color));
+                }
+            }
         }
 
         private void Animation(object sender, EventArgs eventArgs)
         {
-            i += 0.1;
+            i += 0.05;
             i %= 100;
 
-            modelMatrix[0, 0] = Math.Cos(i);
-            modelMatrix[0, 1] = -Math.Sin(i);
-            modelMatrix[1, 0] = Math.Sin(i);
-            modelMatrix[1, 1] = Math.Cos(i);
+            objects[0].modelMatrix[0, 0] = Math.Cos(i);
+            objects[0].modelMatrix[0, 1] = Math.Sin(i);
+            objects[0].modelMatrix[1, 0] = -Math.Sin(i);
+            objects[0].modelMatrix[1, 1] = Math.Cos(i);
+
+            objects[1].modelMatrix[1, 1] = Math.Cos(3 * i);
+            objects[1].modelMatrix[1, 2] = Math.Sin(3 * i);
+            objects[1].modelMatrix[2, 1] = -Math.Sin(3 * i);
+            objects[1].modelMatrix[2, 2] = Math.Cos(3 * i);
 
             Draw();
         }
 
         public void Draw()
         {
-            var matrix = projectionMatrix.Matrix * viewMatrix * modelMatrix;
-            var calculatedPoints = new List<Point>();
-
-            foreach (var p in points)
-            {
-                var calculatedPoint = matrix * p;
-
-                for (int i = 0; i < 4; i++)
-                {
-                    calculatedPoint[i] /= calculatedPoint[3];
-                }
-
-                double x = (calculatedPoint[0] + 1) * pictureBox.Width / 2;
-                double y = (calculatedPoint[1] + 1) * pictureBox.Height / 2;
-
-                calculatedPoints.Add(new Point((int)Math.Round(x), (int)Math.Round(y)));
-            }
-
-            triangles = new List<Triangle>();
-
-            triangles.Add(new Triangle(calculatedPoints[0], calculatedPoints[1], calculatedPoints[2]));
-            triangles.Add(new Triangle(calculatedPoints[0], calculatedPoints[3], calculatedPoints[2]));
-
-            triangles.Add(new Triangle(calculatedPoints[1], calculatedPoints[2], calculatedPoints[6]));
-            triangles.Add(new Triangle(calculatedPoints[1], calculatedPoints[5], calculatedPoints[6]));
-
-            triangles.Add(new Triangle(calculatedPoints[0], calculatedPoints[1], calculatedPoints[5]));
-            triangles.Add(new Triangle(calculatedPoints[0], calculatedPoints[4], calculatedPoints[5]));
-
-            triangles.Add(new Triangle(calculatedPoints[2], calculatedPoints[3], calculatedPoints[7]));
-            triangles.Add(new Triangle(calculatedPoints[2], calculatedPoints[6], calculatedPoints[7]));
-
-            triangles.Add(new Triangle(calculatedPoints[3], calculatedPoints[0], calculatedPoints[4]));
-            triangles.Add(new Triangle(calculatedPoints[3], calculatedPoints[7], calculatedPoints[4]));
-
-            triangles.Add(new Triangle(calculatedPoints[5], calculatedPoints[4], calculatedPoints[7]));
-            triangles.Add(new Triangle(calculatedPoints[5], calculatedPoints[6], calculatedPoints[7]));
+            ClearZBuffor();
 
             using (var graphics = Graphics.FromImage(canvas.Bitmap))
             {
                 graphics.Clear(Color.White);
-                foreach (var triangle in triangles)
+            }
+
+            foreach (var ob in objects)
+            {
+                var matrix = ob.projectionMatrix.Matrix * ob.viewMatrix * ob.modelMatrix;
+                var calculatedPoints = new List<Vertex>();
+
+                foreach (var p in points)
+                {
+                    var calculatedPoint = matrix * p;
+
+                    for (int i = 0; i < 4; i++)
+                    {
+                        calculatedPoint[i] /= calculatedPoint[3];
+                    }
+
+                    double x = (calculatedPoint[0] + 1) * pictureBox.Width / 2;
+                    double y = (calculatedPoint[1] + 1) * pictureBox.Height / 2;
+
+                    calculatedPoints.Add(new Vertex((int)Math.Round(x), (int)Math.Round(y), calculatedPoint[2]));
+                }
+
+                ob.triangles[0].points = new Vertex[3] { calculatedPoints[0], calculatedPoints[1], calculatedPoints[2] };
+                ob.triangles[1].points = new Vertex[3] { calculatedPoints[0], calculatedPoints[3], calculatedPoints[2] };
+
+                ob.triangles[2].points = new Vertex[3] { calculatedPoints[1], calculatedPoints[2], calculatedPoints[6] };
+                ob.triangles[3].points = new Vertex[3] { calculatedPoints[1], calculatedPoints[5], calculatedPoints[6] };
+
+                ob.triangles[4].points = new Vertex[3] { calculatedPoints[0], calculatedPoints[1], calculatedPoints[5] };
+                ob.triangles[5].points = new Vertex[3] { calculatedPoints[0], calculatedPoints[4], calculatedPoints[5] };
+
+                ob.triangles[6].points = new Vertex[3] { calculatedPoints[2], calculatedPoints[3], calculatedPoints[7] };
+                ob.triangles[7].points = new Vertex[3] { calculatedPoints[2], calculatedPoints[6], calculatedPoints[7] };
+
+                ob.triangles[8].points = new Vertex[3] { calculatedPoints[3], calculatedPoints[0], calculatedPoints[4] };
+                ob.triangles[9].points = new Vertex[3] { calculatedPoints[3], calculatedPoints[7], calculatedPoints[4] };
+
+                ob.triangles[10].points = new Vertex[3] { calculatedPoints[5], calculatedPoints[4], calculatedPoints[7] };
+                ob.triangles[11].points = new Vertex[3] { calculatedPoints[5], calculatedPoints[6], calculatedPoints[7] };
+
+                foreach (var triangle in ob.triangles)
                 {
                     Fill(triangle);
                 }
@@ -148,8 +205,13 @@ namespace GK3D
 
         private void Form_Resize(object sender, EventArgs eventArgs)
         {
-            projectionMatrix.a = (double)pictureBox.Height / (double)pictureBox.Width;
-            projectionMatrix.Matrix[1, 1] = projectionMatrix.e / projectionMatrix.a;
+            ReinitializeZBuffor();
+
+            foreach (var ob in objects)
+            {
+                ob.projectionMatrix.a = (double)pictureBox.Height / (double)pictureBox.Width;
+                ob.projectionMatrix.Matrix[1, 1] = ob.projectionMatrix.e / ob.projectionMatrix.a;
+            }
             canvas = new DirectBitmap(pictureBox.Width, pictureBox.Height);
         }
 
@@ -185,8 +247,13 @@ namespace GK3D
                 {
                     for (int x = (int)AET[i].x; x < AET[i + 1].x; x++)
                     {
-                        Color c = Color.Navy;
-                        canvas.SetPixel(x, (int)Math.Round(y), c);
+                        int yint = (int)Math.Round(y);
+                        double z = triangle.Z(x, yint);
+                        if (x >= 0 && x < pictureBox.Width && y >= 0 && y < pictureBox.Height && z <= zBuffor[x, yint])
+                        {
+                            zBuffor[x, yint] = z;
+                            canvas.SetPixel(x, yint, triangle.color);
+                        }
                     }
                 }
                 foreach (var aetn in AET)

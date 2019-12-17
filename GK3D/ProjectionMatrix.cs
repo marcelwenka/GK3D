@@ -8,7 +8,7 @@ using System.Threading.Tasks;
 
 namespace GK3D
 {
-    class ProjectionMatrix
+    public class ProjectionMatrix
     {
         public double n = 1;
         public double f = 100;
