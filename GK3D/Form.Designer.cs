@@ -30,22 +30,26 @@
         {
             this.mainTableLayoutPanel = new System.Windows.Forms.TableLayoutPanel();
             this.pictureBox = new System.Windows.Forms.PictureBox();
+            this.rightPanel = new System.Windows.Forms.Panel();
+            this.cameraComboBox = new System.Windows.Forms.ComboBox();
+            this.cameraLabel = new System.Windows.Forms.Label();
             this.mainTableLayoutPanel.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.pictureBox)).BeginInit();
+            this.rightPanel.SuspendLayout();
             this.SuspendLayout();
             // 
             // mainTableLayoutPanel
             // 
-            this.mainTableLayoutPanel.ColumnCount = 1;
-            this.mainTableLayoutPanel.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Percent, 50F));
-            this.mainTableLayoutPanel.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Percent, 50F));
+            this.mainTableLayoutPanel.ColumnCount = 2;
+            this.mainTableLayoutPanel.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Percent, 100F));
+            this.mainTableLayoutPanel.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Absolute, 200F));
             this.mainTableLayoutPanel.Controls.Add(this.pictureBox, 0, 0);
+            this.mainTableLayoutPanel.Controls.Add(this.rightPanel, 1, 0);
             this.mainTableLayoutPanel.Dock = System.Windows.Forms.DockStyle.Fill;
             this.mainTableLayoutPanel.Location = new System.Drawing.Point(0, 0);
             this.mainTableLayoutPanel.Name = "mainTableLayoutPanel";
             this.mainTableLayoutPanel.RowCount = 1;
-            this.mainTableLayoutPanel.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Percent, 50F));
-            this.mainTableLayoutPanel.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Percent, 50F));
+            this.mainTableLayoutPanel.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Percent, 100F));
             this.mainTableLayoutPanel.Size = new System.Drawing.Size(1184, 661);
             this.mainTableLayoutPanel.TabIndex = 0;
             // 
@@ -54,9 +58,38 @@
             this.pictureBox.Dock = System.Windows.Forms.DockStyle.Fill;
             this.pictureBox.Location = new System.Drawing.Point(3, 3);
             this.pictureBox.Name = "pictureBox";
-            this.pictureBox.Size = new System.Drawing.Size(1178, 655);
+            this.pictureBox.Size = new System.Drawing.Size(978, 655);
             this.pictureBox.TabIndex = 0;
             this.pictureBox.TabStop = false;
+            // 
+            // rightPanel
+            // 
+            this.rightPanel.Controls.Add(this.cameraComboBox);
+            this.rightPanel.Controls.Add(this.cameraLabel);
+            this.rightPanel.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.rightPanel.Location = new System.Drawing.Point(987, 3);
+            this.rightPanel.Name = "rightPanel";
+            this.rightPanel.Size = new System.Drawing.Size(194, 655);
+            this.rightPanel.TabIndex = 1;
+            // 
+            // cameraComboBox
+            // 
+            this.cameraComboBox.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
+            this.cameraComboBox.FormattingEnabled = true;
+            this.cameraComboBox.Location = new System.Drawing.Point(64, 9);
+            this.cameraComboBox.Name = "cameraComboBox";
+            this.cameraComboBox.Size = new System.Drawing.Size(121, 21);
+            this.cameraComboBox.TabIndex = 1;
+            this.cameraComboBox.SelectedIndexChanged += new System.EventHandler(this.cameraComboBox_SelectedIndexChanged);
+            // 
+            // cameraLabel
+            // 
+            this.cameraLabel.AutoSize = true;
+            this.cameraLabel.Location = new System.Drawing.Point(15, 12);
+            this.cameraLabel.Name = "cameraLabel";
+            this.cameraLabel.Size = new System.Drawing.Size(43, 13);
+            this.cameraLabel.TabIndex = 0;
+            this.cameraLabel.Text = "Camera";
             // 
             // Form
             // 
@@ -70,6 +103,8 @@
             this.Resize += new System.EventHandler(this.Form_Resize);
             this.mainTableLayoutPanel.ResumeLayout(false);
             ((System.ComponentModel.ISupportInitialize)(this.pictureBox)).EndInit();
+            this.rightPanel.ResumeLayout(false);
+            this.rightPanel.PerformLayout();
             this.ResumeLayout(false);
 
         }
@@ -78,6 +113,9 @@
 
         private System.Windows.Forms.TableLayoutPanel mainTableLayoutPanel;
         private System.Windows.Forms.PictureBox pictureBox;
+        private System.Windows.Forms.Panel rightPanel;
+        private System.Windows.Forms.ComboBox cameraComboBox;
+        private System.Windows.Forms.Label cameraLabel;
     }
 }
 

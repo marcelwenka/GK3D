@@ -7,16 +7,9 @@ using System.Threading.Tasks;
 
 namespace GK3D
 {
-    public class Object
+    public class Shape
     {
-        public ProjectionMatrix projectionMatrix;
-        public Matrix<double> viewMatrix;
         public Matrix<double> modelMatrix;
         public List<Triangle> triangles;
-
-        public Object(double heightWidthRatio)
-        {
-            projectionMatrix = new ProjectionMatrix(heightWidthRatio);
-        }
     }
 }

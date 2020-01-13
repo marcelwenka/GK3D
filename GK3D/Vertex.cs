@@ -24,5 +24,15 @@ namespace GK3D
             return Math.Sqrt((v.X - x) * (v.X - x) + (v.Y - y) * (v.Y - y));
         }
 
+        public static bool operator ==(Vertex v1, Vertex v2)
+        {
+            return v1.X == v2.X && v1.Y == v2.Y && v1.Z == v2.Z;
+        }
+
+        public static bool operator !=(Vertex v1, Vertex v2)
+        {
+            return !(v1 == v2);
+        }
+
     }
 }

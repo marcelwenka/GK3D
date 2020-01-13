@@ -118,7 +118,6 @@ namespace GK3D
 
     public class AETNode
     {
-        public int ymax;
         public float x;
         public float xd;
         public Vertex p1;
@@ -126,19 +125,19 @@ namespace GK3D
 
         public AETNode(Vertex _p1, Vertex _p2)
         {
-            p1 = _p1;
-            p2 = _p2;
 
             if (_p1.Y > _p2.Y)
             {
-                x = _p2.X;
-                ymax = _p1.Y;
+                p1 = _p2;
+                p2 = _p1;
             }
             else
             {
-                x = _p1.X;
-                ymax = _p2.Y;
+                p1 = _p1;
+                p2 = _p2;
             }
+
+            x = p1.X;
 
             xd = _p1.Y - _p2.Y != 0 ? (float)(_p1.X - _p2.X) / (_p1.Y - _p2.Y) : 0;
         }

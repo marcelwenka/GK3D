@@ -14,12 +14,17 @@ namespace GK3D
 {
     public partial class Form : System.Windows.Forms.Form
     {
+        ProjectionMatrix projectionMatrix;
+        ViewMatrix viewMatrix;
         DirectBitmap canvas;
-        List<Object> objects;
+        List<Shape> objects;
         List<Vector<double>> points;
+        Vector<double> defaultCameraPosition = Vector<double>.Build.DenseOfArray(new double[3] { 4, 0.5, 0.5 });
         Timer timer;
+        CameraType cameraType = CameraType.Fixed;
         double i = 0;
         double[,] zBuffor;
+
 
         public Form()
         {
@@ -27,18 +32,20 @@ namespace GK3D
 
             canvas = new DirectBitmap(pictureBox.Width, pictureBox.Height);
 
+            cameraComboBox.DataSource = Enum.GetValues(typeof(CameraType));
+
             ReinitializeZBuffor();
+            projectionMatrix = new ProjectionMatrix((double)pictureBox.Height / pictureBox.Width);
 
-            objects = new List<Object>();
+            objects = new List<Shape>();
 
-            objects.Add(new Object((double)pictureBox.Height / pictureBox.Width));
-            objects.Add(new Object((double)pictureBox.Height / pictureBox.Width));
+            objects.Add(new Shape());
+            objects.Add(new Shape());
 
-            objects[0].viewMatrix = InitializeViewMatrix();
             objects[0].modelMatrix = InitializeModelMatrix1();
-
-            objects[1].viewMatrix = InitializeViewMatrix();
             objects[1].modelMatrix = InitializeModelMatrix2();
+
+            InitializeFixedViewMatrix();
 
             InitializeTriangles();
 
@@ -65,16 +72,12 @@ namespace GK3D
             }
         }
 
-        private Matrix<double> InitializeViewMatrix()
+        private void InitializeFixedViewMatrix()
         {
-            return DenseMatrix.OfArray(
-                new double[4, 4]
-                {
-                    { 0, 1, 0, -0.5 },
-                    { 0, 0, 1, -0.5 },
-                    { 1, 0, 0, -3 },
-                    { 0, 0, 0, 1 }
-                }
+            viewMatrix = new ViewMatrix(
+                defaultCameraPosition,
+                Vector<double>.Build.DenseOfArray(new double[3] { 0, 0.5, 0.5 }),
+                Vector<double>.Build.DenseOfArray(new double[3] { 0, 0, 1 })
             );
         }
 
@@ -107,22 +110,22 @@ namespace GK3D
         private void InitializeTriangles()
         {
             points = new List<Vector<double>>();
-            points.Add(Vector<double>.Build.Dense(new double[4] { 0, 0, 0, 1 }));
-            points.Add(Vector<double>.Build.Dense(new double[4] { 1, 0, 0, 1 }));
-            points.Add(Vector<double>.Build.Dense(new double[4] { 1, 1, 0, 1 }));
-            points.Add(Vector<double>.Build.Dense(new double[4] { 0, 1, 0, 1 }));
-            points.Add(Vector<double>.Build.Dense(new double[4] { 0, 0, 1, 1 }));
-            points.Add(Vector<double>.Build.Dense(new double[4] { 1, 0, 1, 1 }));
-            points.Add(Vector<double>.Build.Dense(new double[4] { 1, 1, 1, 1 }));
-            points.Add(Vector<double>.Build.Dense(new double[4] { 0, 1, 1, 1 }));
+            points.Add(Vector<double>.Build.DenseOfArray(new double[4] { -0.5, -0.5, -0.5, 0.5 }));
+            points.Add(Vector<double>.Build.DenseOfArray(new double[4] { 0.5, -0.5, -0.5, 0.5 }));
+            points.Add(Vector<double>.Build.DenseOfArray(new double[4] { 0.5, 0.5, -0.5, 0.5 }));
+            points.Add(Vector<double>.Build.DenseOfArray(new double[4] { -0.5, 0.5, -0.5, 0.5 }));
+            points.Add(Vector<double>.Build.DenseOfArray(new double[4] { -0.5, -0.5, 0.5, 0.5 }));
+            points.Add(Vector<double>.Build.DenseOfArray(new double[4] { 0.5, -0.5, 0.5, 0.5 }));
+            points.Add(Vector<double>.Build.DenseOfArray(new double[4] { 0.5, 0.5, 0.5, 0.5 }));
+            points.Add(Vector<double>.Build.DenseOfArray(new double[4] { -0.5, 0.5, 0.5, 0.5 }));
 
             Random random = new Random();
             foreach (var ob in objects)
             {
+                var color = Color.FromArgb(random.Next(256), random.Next(256), random.Next(256));
                 ob.triangles = new List<Triangle>();
                 for (int i = 0; i < 6; i++)
                 {
-                    var color = Color.FromArgb(random.Next(256), random.Next(256), random.Next(256));
                     ob.triangles.Add(new Triangle(new Vertex(0, 0, 0), new Vertex(0, 0, 0), new Vertex(0, 0, 0), color));
                     ob.triangles.Add(new Triangle(new Vertex(0, 0, 0), new Vertex(0, 0, 0), new Vertex(0, 0, 0), color));
                 }
@@ -131,8 +134,27 @@ namespace GK3D
 
         private void Animation(object sender, EventArgs eventArgs)
         {
-            i += 0.05;
-            i %= 100;
+            i += 0.02;
+            i %= 2*Math.PI;
+
+            if (i < Math.PI)
+                objects[1].modelMatrix[1, 3] = i;
+            else
+                objects[1].modelMatrix[1, 3] = 2 * Math.PI - i;
+
+            switch (cameraType)
+            {
+                case CameraType.Fixed:
+                    break;
+                case CameraType.Following:
+                    viewMatrix.CameraPosition = defaultCameraPosition + Vector<double>.Build.DenseOfArray(new double[3] { objects[1].modelMatrix[0, 3], objects[1].modelMatrix[1, 3], objects[1].modelMatrix[2, 3] });
+                    viewMatrix.CameraTarget = Vector<double>.Build.DenseOfArray(new double[3] { objects[1].modelMatrix[0, 3], objects[1].modelMatrix[1, 3], objects[1].modelMatrix[2, 3] });
+                    break;
+                case CameraType.FixedFollowing:
+                    viewMatrix.CameraPosition = defaultCameraPosition;
+                    viewMatrix.CameraTarget = Vector<double>.Build.DenseOfArray(new double[3] { objects[1].modelMatrix[0, 3], objects[1].modelMatrix[1, 3], objects[1].modelMatrix[2, 3] });
+                    break;
+            }
 
             objects[0].modelMatrix[0, 0] = Math.Cos(i);
             objects[0].modelMatrix[0, 1] = Math.Sin(i);
@@ -153,18 +175,18 @@ namespace GK3D
 
             using (var graphics = Graphics.FromImage(canvas.Bitmap))
             {
-                graphics.Clear(Color.White);
+                graphics.Clear(Color.Black);
             }
 
             foreach (var ob in objects)
             {
-                var matrix = ob.projectionMatrix.Matrix * ob.viewMatrix * ob.modelMatrix;
+                var matrix = projectionMatrix.Matrix * viewMatrix.Matrix * ob.modelMatrix;
                 var calculatedPoints = new List<Vertex>();
 
                 foreach (var p in points)
                 {
                     var calculatedPoint = matrix * p;
-
+                    
                     for (int i = 0; i < 4; i++)
                     {
                         calculatedPoint[i] /= calculatedPoint[3];
@@ -194,6 +216,7 @@ namespace GK3D
                 ob.triangles[10].points = new Vertex[3] { calculatedPoints[5], calculatedPoints[4], calculatedPoints[7] };
                 ob.triangles[11].points = new Vertex[3] { calculatedPoints[5], calculatedPoints[6], calculatedPoints[7] };
 
+                //Parallel.ForEach(ob.triangles, triangle =>
                 foreach (var triangle in ob.triangles)
                 {
                     Fill(triangle);
@@ -207,11 +230,7 @@ namespace GK3D
         {
             ReinitializeZBuffor();
 
-            foreach (var ob in objects)
-            {
-                ob.projectionMatrix.a = (double)pictureBox.Height / (double)pictureBox.Width;
-                ob.projectionMatrix.Matrix[1, 1] = ob.projectionMatrix.e / ob.projectionMatrix.a;
-            }
+            projectionMatrix.a = (double)pictureBox.Height / pictureBox.Width;
             canvas = new DirectBitmap(pictureBox.Width, pictureBox.Height);
         }
 
@@ -221,7 +240,35 @@ namespace GK3D
             var AET = new List<AETNode>();
             int k = 0;
 
-            for (double y = triangle.points[indexes[0]].Y; y <= triangle.points[indexes[2]].Y; y++)
+            int lowerBound = triangle.points[indexes[0]].Y;
+            int upperBound = triangle.points[indexes[2]].Y >= pictureBox.Height ? pictureBox.Height - 1 : triangle.points[indexes[2]].Y;
+            
+            if (lowerBound < 0)
+            {
+                if (upperBound < 0)
+                    return;
+
+                lowerBound = 0;
+
+                AET.Add(new AETNode(triangle.points[indexes[2]], triangle.points[indexes[0]]));
+                if (triangle.points[indexes[1]].Y < 0)
+                {
+                    AET.Add(new AETNode(triangle.points[indexes[1]], triangle.points[indexes[2]]));
+                    k = 2;
+                }
+                else
+                {
+                    AET.Add(new AETNode(triangle.points[indexes[0]], triangle.points[indexes[1]]));
+                    k = 1;
+                }
+
+                foreach (var aetNode in AET)
+                    aetNode.x += aetNode.xd * -aetNode.p1.Y;
+
+                AET.Sort((p1, p2) => (int)(p1.x - p2.x));
+            }
+
+            for (int y = lowerBound; y <= upperBound; y++)
             {
                 while (triangle.points[indexes[k]].Y == y - 1)
                 {
@@ -232,12 +279,12 @@ namespace GK3D
                     if (prev.Y >= current.Y)
                         AET.Add(new AETNode(prev, current));
                     else
-                        AET.RemoveAll(aetn => aetn.p1 == prev && aetn.p2 == current);
+                        AET.RemoveAll(aetn => aetn.p2.Y == current.Y);
 
                     if (next.Y >= current.Y)
                         AET.Add(new AETNode(current, next));
                     else
-                        AET.RemoveAll(aetn => aetn.p1 == current && aetn.p2 == next);
+                        AET.RemoveAll(aetn => aetn.p2.Y == current.Y);
 
                     k++;
                 }
@@ -245,14 +292,15 @@ namespace GK3D
                 AET.Sort((p1, p2) => (int)(p1.x - p2.x));
                 for (int i = 0; i < AET.Count; i += 2)
                 {
-                    for (int x = (int)AET[i].x; x < AET[i + 1].x; x++)
+                    int xLowerBound = (int)AET[i].x >= 0 ? (int)AET[i].x : 0;
+                    int xUpperBound = (int)Math.Round(AET[i + 1].x) < pictureBox.Width ? (int)Math.Round(AET[i + 1].x) : pictureBox.Width;
+                    for (int x = xLowerBound; x < xUpperBound; x++)
                     {
-                        int yint = (int)Math.Round(y);
-                        double z = triangle.Z(x, yint);
-                        if (x >= 0 && x < pictureBox.Width && y >= 0 && y < pictureBox.Height && z <= zBuffor[x, yint])
+                        double z = triangle.Z(x, y);
+                        if (z < zBuffor[x, y])
                         {
-                            zBuffor[x, yint] = z;
-                            canvas.SetPixel(x, yint, triangle.color);
+                            zBuffor[x, y] = z;
+                            canvas.SetPixel(x, y, triangle.color);
                         }
                     }
                 }
@@ -261,6 +309,11 @@ namespace GK3D
                     aetn.x += aetn.xd;
                 }
             }
+        }
+
+        private void cameraComboBox_SelectedIndexChanged(object sender, EventArgs e)
+        {
+            cameraType = (CameraType)cameraComboBox.SelectedItem;
         }
     }
 }
