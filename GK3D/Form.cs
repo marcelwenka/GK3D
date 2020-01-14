@@ -1,4 +1,5 @@
-﻿using MathNet.Numerics.LinearAlgebra;
+﻿using GK3D.Models;
+using MathNet.Numerics.LinearAlgebra;
 using MathNet.Numerics.LinearAlgebra.Double;
 using System;
 using System.Collections.Generic;
@@ -17,9 +18,7 @@ namespace GK3D
         ProjectionMatrix projectionMatrix;
         ViewMatrix viewMatrix;
         DirectBitmap canvas;
-        List<Shape> objects;
-        List<Vector<double>> points;
-        Vector<double> defaultCameraPosition = Vector<double>.Build.DenseOfArray(new double[3] { 4, 0.5, 0.5 });
+        List<Model> models;
         Timer timer;
         CameraType cameraType = CameraType.Fixed;
         double i = 0;
@@ -37,17 +36,9 @@ namespace GK3D
             ReinitializeZBuffor();
             projectionMatrix = new ProjectionMatrix((double)pictureBox.Height / pictureBox.Width);
 
-            objects = new List<Shape>();
-
-            objects.Add(new Shape());
-            objects.Add(new Shape());
-
-            objects[0].modelMatrix = InitializeModelMatrix1();
-            objects[1].modelMatrix = InitializeModelMatrix2();
+            models = Initializers.InitializeModels();
 
             InitializeFixedViewMatrix();
-
-            InitializeTriangles();
 
             timer = new Timer();
             timer.Interval = 33;
@@ -74,62 +65,7 @@ namespace GK3D
 
         private void InitializeFixedViewMatrix()
         {
-            viewMatrix = new ViewMatrix(
-                defaultCameraPosition,
-                Vector<double>.Build.DenseOfArray(new double[3] { 0, 0.5, 0.5 }),
-                Vector<double>.Build.DenseOfArray(new double[3] { 0, 0, 1 })
-            );
-        }
-
-        private Matrix<double> InitializeModelMatrix1()
-        {
-            return DenseMatrix.OfArray(
-                new double[4, 4]
-                {
-                    { 1, 0, 0, 0.5 },
-                    { 0, 1, 0, 0.4 },
-                    { 0, 0, 1, 0.3 },
-                    { 0, 0, 0, 1 }
-                }
-            );
-        }
-
-        private Matrix<double> InitializeModelMatrix2()
-        {
-            return DenseMatrix.OfArray(
-                new double[4, 4]
-                {
-                    { 1, 0, 0, 0 },
-                    { 0, 1, 0, 0 },
-                    { 0, 0, 1, 0 },
-                    { 0, 0, 0, 1 }
-                }
-            );
-        }
-
-        private void InitializeTriangles()
-        {
-            points = new List<Vector<double>>();
-            points.Add(Vector<double>.Build.DenseOfArray(new double[4] { -0.5, -0.5, -0.5, 0.5 }));
-            points.Add(Vector<double>.Build.DenseOfArray(new double[4] { 0.5, -0.5, -0.5, 0.5 }));
-            points.Add(Vector<double>.Build.DenseOfArray(new double[4] { 0.5, 0.5, -0.5, 0.5 }));
-            points.Add(Vector<double>.Build.DenseOfArray(new double[4] { -0.5, 0.5, -0.5, 0.5 }));
-            points.Add(Vector<double>.Build.DenseOfArray(new double[4] { -0.5, -0.5, 0.5, 0.5 }));
-            points.Add(Vector<double>.Build.DenseOfArray(new double[4] { 0.5, -0.5, 0.5, 0.5 }));
-            points.Add(Vector<double>.Build.DenseOfArray(new double[4] { 0.5, 0.5, 0.5, 0.5 }));
-            points.Add(Vector<double>.Build.DenseOfArray(new double[4] { -0.5, 0.5, 0.5, 0.5 }));
-
-            Random random = new Random();
-            foreach (var ob in objects)
-            {
-                var color = Color.FromArgb(random.Next(256), random.Next(256), random.Next(256));
-                ob.triangles = new List<Triangle>();
-                for (int i = 0; i < 6; i++)
-                {
-                    ob.triangles.Add(new Triangle(new Vertex(0, 0, 0), new Vertex(0, 0, 0), new Vertex(0, 0, 0), color));
-                    ob.triangles.Add(new Triangle(new Vertex(0, 0, 0), new Vertex(0, 0, 0), new Vertex(0, 0, 0), color));
-                }
-            }
+            viewMatrix = new ViewMatrix();
         }
 
         private void Animation(object sender, EventArgs eventArgs)
@@ -138,33 +74,33 @@ namespace GK3D
             i %= 2*Math.PI;
 
             if (i < Math.PI)
-                objects[1].modelMatrix[1, 3] = i;
+                models[1].Matrix[1, 3] = i;
             else
-                objects[1].modelMatrix[1, 3] = 2 * Math.PI - i;
+                models[1].Matrix[1, 3] = 2 * Math.PI - i;
 
             switch (cameraType)
             {
                 case CameraType.Fixed:
                     break;
                 case CameraType.Following:
-                    viewMatrix.CameraPosition = defaultCameraPosition + Vector<double>.Build.DenseOfArray(new double[3] { objects[1].modelMatrix[0, 3], objects[1].modelMatrix[1, 3], objects[1].modelMatrix[2, 3] });
-                    viewMatrix.CameraTarget = Vector<double>.Build.DenseOfArray(new double[3] { objects[1].modelMatrix[0, 3], objects[1].modelMatrix[1, 3], objects[1].modelMatrix[2, 3] });
+                    viewMatrix.CameraPosition = ViewMatrix.DefaultCameraPosition + Vector<double>.Build.DenseOfArray(new double[3] { models[1].Matrix[0, 3], models[1].Matrix[1, 3], models[1].Matrix[2, 3] });
+                    viewMatrix.CameraTarget = Vector<double>.Build.DenseOfArray(new double[3] { models[1].Matrix[0, 3], models[1].Matrix[1, 3], models[1].Matrix[2, 3] });
                     break;
                 case CameraType.FixedFollowing:
-                    viewMatrix.CameraPosition = defaultCameraPosition;
-                    viewMatrix.CameraTarget = Vector<double>.Build.DenseOfArray(new double[3] { objects[1].modelMatrix[0, 3], objects[1].modelMatrix[1, 3], objects[1].modelMatrix[2, 3] });
+                    viewMatrix.CameraPosition = ViewMatrix.DefaultCameraPosition;
+                    viewMatrix.CameraTarget = Vector<double>.Build.DenseOfArray(new double[3] { models[1].Matrix[0, 3], models[1].Matrix[1, 3], models[1].Matrix[2, 3] });
                     break;
             }
 
-            objects[0].modelMatrix[0, 0] = Math.Cos(i);
-            objects[0].modelMatrix[0, 1] = Math.Sin(i);
-            objects[0].modelMatrix[1, 0] = -Math.Sin(i);
-            objects[0].modelMatrix[1, 1] = Math.Cos(i);
+            models[0].Matrix[0, 0] = Math.Cos(i);
+            models[0].Matrix[0, 1] = Math.Sin(i);
+            models[0].Matrix[1, 0] = -Math.Sin(i);
+            models[0].Matrix[1, 1] = Math.Cos(i);
 
-            objects[1].modelMatrix[1, 1] = Math.Cos(3 * i);
-            objects[1].modelMatrix[1, 2] = Math.Sin(3 * i);
-            objects[1].modelMatrix[2, 1] = -Math.Sin(3 * i);
-            objects[1].modelMatrix[2, 2] = Math.Cos(3 * i);
+            models[1].Matrix[1, 1] = Math.Cos(3 * i);
+            models[1].Matrix[1, 2] = Math.Sin(3 * i);
+            models[1].Matrix[2, 1] = -Math.Sin(3 * i);
+            models[1].Matrix[2, 2] = Math.Cos(3 * i);
 
             Draw();
         }
@@ -178,12 +114,12 @@ namespace GK3D
                 graphics.Clear(Color.Black);
             }
 
-            foreach (var ob in objects)
+            foreach (var model in models)
             {
-                var matrix = projectionMatrix.Matrix * viewMatrix.Matrix * ob.modelMatrix;
+                var matrix = projectionMatrix.Matrix * viewMatrix.Matrix * model.Matrix;
                 var calculatedPoints = new List<Vertex>();
 
-                foreach (var p in points)
+                foreach (var p in model.Points)
                 {
                     var calculatedPoint = matrix * p;
                     
@@ -198,29 +134,17 @@ namespace GK3D
                     calculatedPoints.Add(new Vertex((int)Math.Round(x), (int)Math.Round(y), calculatedPoint[2]));
                 }
 
-                ob.triangles[0].points = new Vertex[3] { calculatedPoints[0], calculatedPoints[1], calculatedPoints[2] };
-                ob.triangles[1].points = new Vertex[3] { calculatedPoints[0], calculatedPoints[3], calculatedPoints[2] };
-
-                ob.triangles[2].points = new Vertex[3] { calculatedPoints[1], calculatedPoints[2], calculatedPoints[6] };
-                ob.triangles[3].points = new Vertex[3] { calculatedPoints[1], calculatedPoints[5], calculatedPoints[6] };
-
-                ob.triangles[4].points = new Vertex[3] { calculatedPoints[0], calculatedPoints[1], calculatedPoints[5] };
-                ob.triangles[5].points = new Vertex[3] { calculatedPoints[0], calculatedPoints[4], calculatedPoints[5] };
-
-                ob.triangles[6].points = new Vertex[3] { calculatedPoints[2], calculatedPoints[3], calculatedPoints[7] };
-                ob.triangles[7].points = new Vertex[3] { calculatedPoints[2], calculatedPoints[6], calculatedPoints[7] };
-
-                ob.triangles[8].points = new Vertex[3] { calculatedPoints[3], calculatedPoints[0], calculatedPoints[4] };
-                ob.triangles[9].points = new Vertex[3] { calculatedPoints[3], calculatedPoints[7], calculatedPoints[4] };
-
-                ob.triangles[10].points = new Vertex[3] { calculatedPoints[5], calculatedPoints[4], calculatedPoints[7] };
-                ob.triangles[11].points = new Vertex[3] { calculatedPoints[5], calculatedPoints[6], calculatedPoints[7] };
-
-                //Parallel.ForEach(ob.triangles, triangle =>
-                foreach (var triangle in ob.triangles)
+                model.Triangles = new List<Triangle>();
+                foreach (var indexes in model.TriangleIndexes)
                 {
-                    Fill(triangle);
+                    model.Triangles.Add(new Triangle(calculatedPoints[indexes.Item1], calculatedPoints[indexes.Item2], calculatedPoints[indexes.Item3], model.Color));
                 }
+
+                Parallel.ForEach(model.Triangles, triangle => Fill(triangle));
+                //foreach (var triangle in model.Triangles)
+                //{
+                //    Fill(triangle);
+                //}
             }
 
             pictureBox.Image = canvas.Bitmap;
@@ -309,11 +233,6 @@ namespace GK3D
                     aetn.x += aetn.xd;
                 }
             }
-        }
-
-        private void cameraComboBox_SelectedIndexChanged(object sender, EventArgs e)
-        {
-            cameraType = (CameraType)cameraComboBox.SelectedItem;
         }
     }
 }

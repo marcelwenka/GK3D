@@ -7,7 +7,7 @@ using System.Threading.Tasks;
 
 namespace GK3D
 {
-    public class MathExtensions
+    public static class MathExtensions
     {
         public static Vector<double> CrossProduct(Vector<double> v1, Vector<double> v2)
         {
@@ -17,6 +17,13 @@ namespace GK3D
                 (v1[0] * v2[2] - v2[0] * v1[2]) * -1,
                 v1[0] * v2[1] - v2[0] * v1[1]
             });
+        }
+        public static Vector<double> Normalize3D(this Vector<double> v)
+        {
+            var length = Math.Sqrt(v[0] * v[0] + v[1] * v[1] + v[2] * v[2]);
+            v /= length;
+            v[3] = 1;
+            return v;
         }
     }
 }

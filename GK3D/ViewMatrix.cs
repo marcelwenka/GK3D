@@ -10,9 +10,11 @@ namespace GK3D
 {
     public class ViewMatrix
     {
-        private Vector<double> cameraPosition;
-        private Vector<double> cameraTarget;
-        private Vector<double> upVector;
+        private Vector<double> cameraPosition = DefaultCameraPosition;
+        private Vector<double> cameraTarget = Vector<double>.Build.DenseOfArray(new double[3] { 0, 0.5, 0.5 });
+        private Vector<double> upVector = Vector<double>.Build.DenseOfArray(new double[3] { 0, 0, 1 });
+
+        public static readonly Vector<double> DefaultCameraPosition = Vector<double>.Build.DenseOfArray(new double[3] { 4, 0.5, 0.5 });
 
         public Vector<double> CameraPosition
         {
@@ -53,12 +55,8 @@ namespace GK3D
 
         public Matrix<double> Matrix { get; private set; }
 
-        public ViewMatrix(Vector<double> _cameraPosition, Vector<double> _cameraTarget, Vector<double> _upVector)
+        public ViewMatrix()
         {
-            cameraPosition = _cameraPosition;
-            cameraTarget = _cameraTarget;
-            upVector = _upVector.Normalize(2);
-
             CalculateMatrix();
         }
 
