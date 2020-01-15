@@ -9,7 +9,7 @@ namespace GK3D
     enum CameraType
     {
         Fixed,
-        Following,
-        FixedFollowing
+        FollowingMoving,
+        FollowingFixed
     }
 }

@@ -31,8 +31,10 @@
             this.mainTableLayoutPanel = new System.Windows.Forms.TableLayoutPanel();
             this.pictureBox = new System.Windows.Forms.PictureBox();
             this.rightPanel = new System.Windows.Forms.Panel();
+            this.fpsLabel = new System.Windows.Forms.Label();
             this.cameraComboBox = new System.Windows.Forms.ComboBox();
             this.cameraLabel = new System.Windows.Forms.Label();
+            this.fpsNameLabel = new System.Windows.Forms.Label();
             this.mainTableLayoutPanel.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.pictureBox)).BeginInit();
             this.rightPanel.SuspendLayout();
@@ -64,6 +66,8 @@
             // 
             // rightPanel
             // 
+            this.rightPanel.Controls.Add(this.fpsNameLabel);
+            this.rightPanel.Controls.Add(this.fpsLabel);
             this.rightPanel.Controls.Add(this.cameraComboBox);
             this.rightPanel.Controls.Add(this.cameraLabel);
             this.rightPanel.Dock = System.Windows.Forms.DockStyle.Fill;
@@ -72,11 +76,20 @@
             this.rightPanel.Size = new System.Drawing.Size(194, 655);
             this.rightPanel.TabIndex = 1;
             // 
+            // fpsLabel
+            // 
+            this.fpsLabel.AutoSize = true;
+            this.fpsLabel.Location = new System.Drawing.Point(59, 59);
+            this.fpsLabel.Name = "fpsLabel";
+            this.fpsLabel.Size = new System.Drawing.Size(13, 13);
+            this.fpsLabel.TabIndex = 2;
+            this.fpsLabel.Text = "0";
+            // 
             // cameraComboBox
             // 
             this.cameraComboBox.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
             this.cameraComboBox.FormattingEnabled = true;
-            this.cameraComboBox.Location = new System.Drawing.Point(64, 9);
+            this.cameraComboBox.Location = new System.Drawing.Point(62, 22);
             this.cameraComboBox.Name = "cameraComboBox";
             this.cameraComboBox.Size = new System.Drawing.Size(121, 21);
             this.cameraComboBox.TabIndex = 1;
@@ -85,11 +98,20 @@
             // cameraLabel
             // 
             this.cameraLabel.AutoSize = true;
-            this.cameraLabel.Location = new System.Drawing.Point(15, 12);
+            this.cameraLabel.Location = new System.Drawing.Point(13, 25);
             this.cameraLabel.Name = "cameraLabel";
             this.cameraLabel.Size = new System.Drawing.Size(43, 13);
             this.cameraLabel.TabIndex = 0;
             this.cameraLabel.Text = "Camera";
+            // 
+            // fpsNameLabel
+            // 
+            this.fpsNameLabel.AutoSize = true;
+            this.fpsNameLabel.Location = new System.Drawing.Point(13, 59);
+            this.fpsNameLabel.Name = "fpsNameLabel";
+            this.fpsNameLabel.Size = new System.Drawing.Size(30, 13);
+            this.fpsNameLabel.TabIndex = 3;
+            this.fpsNameLabel.Text = "FPS:";
             // 
             // Form
             // 
@@ -116,6 +138,8 @@
         private System.Windows.Forms.Panel rightPanel;
         private System.Windows.Forms.ComboBox cameraComboBox;
         private System.Windows.Forms.Label cameraLabel;
+        private System.Windows.Forms.Label fpsLabel;
+        private System.Windows.Forms.Label fpsNameLabel;
     }
 }
 

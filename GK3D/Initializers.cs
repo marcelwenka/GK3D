@@ -63,15 +63,15 @@ namespace GK3D
             var matrix3 = DenseMatrix.OfArray(
                 new double[4, 4]
                 {
-                    { 1, 0, 0, 2 },
-                    { 0, 1, 0, 0 },
+                    { 1, 0, 0, 1.0 },
+                    { 0, 1, 0, 2.5 },
                     { 0, 0, 1, 0 },
                     { 0, 0, 0, 1 }
                 }
             );
 
             initialModels.Add(new Cuboid(points1, matrix1, Color.Aqua));
-            //initialModels.Add(new Cuboid(points2, matrix2, Color.BlueViolet));
+            initialModels.Add(new Cuboid(points2, matrix2, Color.BlueViolet));
 
             initialModels.Add(new Sphere(1, matrix3, Color.PaleGreen));
 
