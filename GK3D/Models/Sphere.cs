@@ -8,13 +8,19 @@ using System.Threading.Tasks;
 
 namespace GK3D.Models
 {
-    public class Sphere : Model
+    public class Sphere : IModel
     {
         public List<(int, int, int)> TriangleIndexes { get; set; }
         public List<Triangle> Triangles { get; set; }
         public List<Vector<double>> Points { get; set; }
         public Matrix<double> Matrix { get; set; }
         public Color Color { get; set; }
+        public Vector<double> Center { get; set; }
+
+        public Vector<double> N(double x, double y, double z)
+        {
+            return Vector<double>.Build.DenseOfArray(new double[3] { x - Center[0], y - Center[1], z - Center[2] });
+        }
 
         public Sphere(double radius, Matrix<double> matrix, Color color)
         {

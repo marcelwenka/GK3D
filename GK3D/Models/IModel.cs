@@ -8,12 +8,13 @@ using System.Threading.Tasks;
 
 namespace GK3D.Models
 {
-    public interface Model
+    public interface IModel
     {
         List<(int, int, int)> TriangleIndexes { get; set; }
         List<Triangle> Triangles { get; set; }
         List<Vector<double>> Points { get; set; }
         Matrix<double> Matrix { get; set; }
         Color Color { get; set; }
+        Vector<double> Center { get; set; }
     }
 }

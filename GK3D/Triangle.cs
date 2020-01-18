@@ -10,12 +10,10 @@ namespace GK3D
     public class Triangle
     {
         public Vertex[] points;
-        public Color color;
 
-        public Triangle(Vertex _p1, Vertex _p2, Vertex _p3, Color c)
+        public Triangle(Vertex _p1, Vertex _p2, Vertex _p3)
         {
             points = new Vertex[3] { _p1, _p2, _p3 };
-            color = c;
         }
 
         public double Z(int x, int y)
@@ -26,27 +24,6 @@ namespace GK3D
             var w2 = 1 - w1 - w0;
 
             return (w0 * points[0].Z + w1 * points[1].Z + w2 * points[2].Z);
-
-            var distances = new double[3]
-            {
-                Vertex.Dist(points[0], x, y),
-                Vertex.Dist(points[1], x, y),
-                Vertex.Dist(points[2], x, y)
-            };
-
-            var weights = new double[3]
-            {
-                //distances[1] * distances[2],
-                //distances[0] * distances[2],
-                //distances[0] * distances[1]
-                1 / distances[0],
-                1 / distances[1],
-                1 / distances[2]
-            };
-
-            double sum = weights.Sum();
-
-            return (points[0].Z * weights[0] + points[1].Z * weights[1] + points[2].Z * weights[2]) / sum;
         }
 
         public int[] GetSortedIndexes()

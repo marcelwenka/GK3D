@@ -69,7 +69,7 @@
     </Compile>
     <Compile Include="Initializers.cs" />
     <Compile Include="MathExtensions.cs" />
-    <Compile Include="Models\Model.cs" />
+    <Compile Include="Models\IModel.cs" />
     <Compile Include="Models\Cuboid.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="ProjectionMatrix.cs" />

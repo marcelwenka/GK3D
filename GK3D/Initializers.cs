@@ -12,9 +12,9 @@ namespace GK3D
 {
     public static class Initializers
     {
-        public static List<Model> InitializeModels()
+        public static List<IModel> InitializeModels()
         {
-            var initialModels = new List<Model>();
+            var initialModels = new List<IModel>();
 
             var matrix1 = DenseMatrix.OfArray(
                 new double[4, 4]

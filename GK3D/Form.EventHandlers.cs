@@ -16,5 +16,10 @@ namespace GK3D
             projectionMatrix.a = (double)pictureBox.Height / pictureBox.Width;
             canvas = new DirectBitmap(pictureBox.Width, pictureBox.Height);
         }
+
+        private void drawLinesCheckbox_CheckedChanged(object sender, EventArgs e)
+        {
+            Drawing.drawLines = drawLinesCheckbox.Checked;
+        }
     }
 }

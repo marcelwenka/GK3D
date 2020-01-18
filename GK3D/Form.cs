@@ -20,7 +20,7 @@ namespace GK3D
         ProjectionMatrix projectionMatrix;
         ViewMatrix viewMatrix;
         DirectBitmap canvas;
-        List<Model> models;
+        List<IModel> models;
         Timer animationTimer;
         Timer fpsTimer;
         CameraType cameraType = CameraType.Fixed;
@@ -65,7 +65,7 @@ namespace GK3D
             pictureBox.Image = canvas.Bitmap;
         }
 
-        public void DrawModel(Model model)
+        public void DrawModel(IModel model)
         {
             var matrix = projectionMatrix.Matrix * viewMatrix.Matrix * model.Matrix;
             var calculatedPoints = new List<Vertex>();
@@ -74,10 +74,11 @@ namespace GK3D
             {
                 var calculatedPoint = matrix * p;
 
-                for (int i = 0; i < 4; i++)
+                for (int i = 0; i < 3; i++)
                 {
                     calculatedPoint[i] /= calculatedPoint[3];
                 }
+                calculatedPoint[3] = 1;
 
                 double x = (calculatedPoint[0] + 1) * pictureBox.Width / 2;
                 double y = (calculatedPoint[1] + 1) * pictureBox.Height / 2;
@@ -85,13 +86,10 @@ namespace GK3D
                 calculatedPoints.Add(new Vertex((int)Math.Round(x), (int)Math.Round(y), calculatedPoint[2]));
             }
 
-            model.Triangles = new List<Triangle>();
-            foreach (var indexes in model.TriangleIndexes)
-            {
-                model.Triangles.Add(new Triangle(calculatedPoints[indexes.Item1], calculatedPoints[indexes.Item2], calculatedPoints[indexes.Item3], model.Color));
-            }
+            model.Center = Vector<double>.Build.DenseOfArray(new double[3] { calculatedPoints[0].X - calculatedPoints[5].X, calculatedPoints[0].Y - calculatedPoints[5].Y, calculatedPoints[0].Z - calculatedPoints[5].Z });
+            model.Triangles = model.TriangleIndexes.Select(indexes => new Triangle(calculatedPoints[indexes.Item1], calculatedPoints[indexes.Item2], calculatedPoints[indexes.Item3])).ToList();
 
-            Parallel.ForEach(model.Triangles, triangle => canvas.Fill(triangle));
+            Parallel.ForEach(model.Triangles, triangle => canvas.Fill(triangle, model));
         }
     }
 }

@@ -31,10 +31,11 @@
             this.mainTableLayoutPanel = new System.Windows.Forms.TableLayoutPanel();
             this.pictureBox = new System.Windows.Forms.PictureBox();
             this.rightPanel = new System.Windows.Forms.Panel();
+            this.drawLinesCheckbox = new System.Windows.Forms.CheckBox();
+            this.fpsNameLabel = new System.Windows.Forms.Label();
             this.fpsLabel = new System.Windows.Forms.Label();
             this.cameraComboBox = new System.Windows.Forms.ComboBox();
             this.cameraLabel = new System.Windows.Forms.Label();
-            this.fpsNameLabel = new System.Windows.Forms.Label();
             this.mainTableLayoutPanel.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.pictureBox)).BeginInit();
             this.rightPanel.SuspendLayout();
@@ -66,6 +67,7 @@
             // 
             // rightPanel
             // 
+            this.rightPanel.Controls.Add(this.drawLinesCheckbox);
             this.rightPanel.Controls.Add(this.fpsNameLabel);
             this.rightPanel.Controls.Add(this.fpsLabel);
             this.rightPanel.Controls.Add(this.cameraComboBox);
@@ -75,6 +77,28 @@
             this.rightPanel.Name = "rightPanel";
             this.rightPanel.Size = new System.Drawing.Size(194, 655);
             this.rightPanel.TabIndex = 1;
+            // 
+            // drawLinesCheckbox
+            // 
+            this.drawLinesCheckbox.AutoSize = true;
+            this.drawLinesCheckbox.Checked = true;
+            this.drawLinesCheckbox.CheckState = System.Windows.Forms.CheckState.Checked;
+            this.drawLinesCheckbox.Location = new System.Drawing.Point(16, 87);
+            this.drawLinesCheckbox.Name = "drawLinesCheckbox";
+            this.drawLinesCheckbox.Size = new System.Drawing.Size(126, 17);
+            this.drawLinesCheckbox.TabIndex = 4;
+            this.drawLinesCheckbox.Text = "Draw triangle edges?";
+            this.drawLinesCheckbox.UseVisualStyleBackColor = true;
+            this.drawLinesCheckbox.CheckedChanged += new System.EventHandler(this.drawLinesCheckbox_CheckedChanged);
+            // 
+            // fpsNameLabel
+            // 
+            this.fpsNameLabel.AutoSize = true;
+            this.fpsNameLabel.Location = new System.Drawing.Point(13, 59);
+            this.fpsNameLabel.Name = "fpsNameLabel";
+            this.fpsNameLabel.Size = new System.Drawing.Size(30, 13);
+            this.fpsNameLabel.TabIndex = 3;
+            this.fpsNameLabel.Text = "FPS:";
             // 
             // fpsLabel
             // 
@@ -104,15 +128,6 @@
             this.cameraLabel.TabIndex = 0;
             this.cameraLabel.Text = "Camera";
             // 
-            // fpsNameLabel
-            // 
-            this.fpsNameLabel.AutoSize = true;
-            this.fpsNameLabel.Location = new System.Drawing.Point(13, 59);
-            this.fpsNameLabel.Name = "fpsNameLabel";
-            this.fpsNameLabel.Size = new System.Drawing.Size(30, 13);
-            this.fpsNameLabel.TabIndex = 3;
-            this.fpsNameLabel.Text = "FPS:";
-            // 
             // Form
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
@@ -140,6 +155,7 @@
         private System.Windows.Forms.Label cameraLabel;
         private System.Windows.Forms.Label fpsLabel;
         private System.Windows.Forms.Label fpsNameLabel;
+        private System.Windows.Forms.CheckBox drawLinesCheckbox;
     }
 }
 
