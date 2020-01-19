@@ -19,7 +19,7 @@ namespace GK3D.Models
 
         public Vector<double> N(double x, double y, double z)
         {
-            return Vector<double>.Build.DenseOfArray(new double[3] { x - Center[0], y - Center[1], z - Center[2] });
+            return Vector<double>.Build.DenseOfArray(new double[3] { x - Center[0], y - Center[1], z - Center[2] }).Normalize(2);
         }
 
         public Sphere(double radius, Matrix<double> matrix, Color color)
@@ -48,9 +48,13 @@ namespace GK3D.Models
                 int TriangleIndexesCount = TriangleIndexes.Count();
                 for (int i = 0; i < TriangleIndexesCount; i++)
                 {
-                    var w1 = (Points[TriangleIndexes[i].Item2] + Points[TriangleIndexes[i].Item3]).Normalize3D();
-                    var w2 = (Points[TriangleIndexes[i].Item1] + Points[TriangleIndexes[i].Item3]).Normalize3D();
-                    var w3 = (Points[TriangleIndexes[i].Item1] + Points[TriangleIndexes[i].Item2]).Normalize3D();
+                    var w1 = (Points[TriangleIndexes[i].Item2] + Points[TriangleIndexes[i].Item3]).Normalize3D() * radius;
+                    var w2 = (Points[TriangleIndexes[i].Item1] + Points[TriangleIndexes[i].Item3]).Normalize3D() * radius;
+                    var w3 = (Points[TriangleIndexes[i].Item1] + Points[TriangleIndexes[i].Item2]).Normalize3D() * radius;
+                    w1[3] = 1;
+                    w2[3] = 1;
+                    w3[3] = 1;
+
 
                     int i1 = Points.IndexOf(w1);
                     if (i1 == -1)

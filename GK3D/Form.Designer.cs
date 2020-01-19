@@ -29,16 +29,16 @@
         private void InitializeComponent()
         {
             this.mainTableLayoutPanel = new System.Windows.Forms.TableLayoutPanel();
-            this.pictureBox = new System.Windows.Forms.PictureBox();
             this.rightPanel = new System.Windows.Forms.Panel();
             this.drawLinesCheckbox = new System.Windows.Forms.CheckBox();
             this.fpsNameLabel = new System.Windows.Forms.Label();
             this.fpsLabel = new System.Windows.Forms.Label();
             this.cameraComboBox = new System.Windows.Forms.ComboBox();
             this.cameraLabel = new System.Windows.Forms.Label();
+            this.pictureBox = new System.Windows.Forms.PictureBox();
             this.mainTableLayoutPanel.SuspendLayout();
-            ((System.ComponentModel.ISupportInitialize)(this.pictureBox)).BeginInit();
             this.rightPanel.SuspendLayout();
+            ((System.ComponentModel.ISupportInitialize)(this.pictureBox)).BeginInit();
             this.SuspendLayout();
             // 
             // mainTableLayoutPanel
@@ -56,15 +56,6 @@
             this.mainTableLayoutPanel.Size = new System.Drawing.Size(1184, 661);
             this.mainTableLayoutPanel.TabIndex = 0;
             // 
-            // pictureBox
-            // 
-            this.pictureBox.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.pictureBox.Location = new System.Drawing.Point(3, 3);
-            this.pictureBox.Name = "pictureBox";
-            this.pictureBox.Size = new System.Drawing.Size(978, 655);
-            this.pictureBox.TabIndex = 0;
-            this.pictureBox.TabStop = false;
-            // 
             // rightPanel
             // 
             this.rightPanel.Controls.Add(this.drawLinesCheckbox);
@@ -81,8 +72,6 @@
             // drawLinesCheckbox
             // 
             this.drawLinesCheckbox.AutoSize = true;
-            this.drawLinesCheckbox.Checked = true;
-            this.drawLinesCheckbox.CheckState = System.Windows.Forms.CheckState.Checked;
             this.drawLinesCheckbox.Location = new System.Drawing.Point(16, 87);
             this.drawLinesCheckbox.Name = "drawLinesCheckbox";
             this.drawLinesCheckbox.Size = new System.Drawing.Size(126, 17);
@@ -128,6 +117,15 @@
             this.cameraLabel.TabIndex = 0;
             this.cameraLabel.Text = "Camera";
             // 
+            // pictureBox
+            // 
+            this.pictureBox.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.pictureBox.Location = new System.Drawing.Point(3, 3);
+            this.pictureBox.Name = "pictureBox";
+            this.pictureBox.Size = new System.Drawing.Size(978, 655);
+            this.pictureBox.TabIndex = 0;
+            this.pictureBox.TabStop = false;
+            // 
             // Form
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
@@ -139,9 +137,9 @@
             this.Text = "GK 3D";
             this.Resize += new System.EventHandler(this.Form_Resize);
             this.mainTableLayoutPanel.ResumeLayout(false);
-            ((System.ComponentModel.ISupportInitialize)(this.pictureBox)).EndInit();
             this.rightPanel.ResumeLayout(false);
             this.rightPanel.PerformLayout();
+            ((System.ComponentModel.ISupportInitialize)(this.pictureBox)).EndInit();
             this.ResumeLayout(false);
 
         }

@@ -12,23 +12,13 @@ namespace GK3D
     public static class Drawing
     {
         public static double[,] zBuffor;
-        public static bool drawLines = true;
+        public static bool drawLines = false;
+        public static int width;
+        public static int height;
 
-        public static void ReinitializeZBuffor(int width, int height)
+        public static void ReinitializeZBuffor()
         {
             zBuffor = new double[width, height];
-            ClearZBuffor();
-        }
-
-        public static void ClearZBuffor()
-        {
-            for (int i = 0; i < zBuffor.GetLength(0); i++)
-            {
-                for (int j = 0; j < zBuffor.GetLength(1); j++)
-                {
-                    zBuffor[i, j] = 1;
-                }
-            }
         }
 
         public static void Fill(this DirectBitmap bitmap, Triangle triangle, IModel model)
@@ -37,7 +27,7 @@ namespace GK3D
             var AET = new List<AETNode>();
             int k = 0;
 
-            Vector<double> N;
+            Vector<double> N = null;
 
             if (model is Cuboid)
                 N = (model as Cuboid).N(triangle);
@@ -78,12 +68,12 @@ namespace GK3D
                     var current = triangle.points[indexes[k]];
                     var next = triangle.points[Triangle.next(indexes[k])];
 
-                    if (prev.Y >= current.Y)
+                    if (prev.Y > current.Y)
                         AET.Add(new AETNode(prev, current));
                     else
                         AET.RemoveAll(aetn => aetn.p2.Y == current.Y);
 
-                    if (next.Y >= current.Y)
+                    if (next.Y > current.Y)
                         AET.Add(new AETNode(current, next));
                     else
                         AET.RemoveAll(aetn => aetn.p2.Y == current.Y);
@@ -99,12 +89,16 @@ namespace GK3D
                     for (int x = xLowerBound; x < xUpperBound; x++)
                     {
                         double z = triangle.Z(x, y);
-                        if (z <= zBuffor[x, y])
+                        if (z >= zBuffor[x, y])
                         {
+                            zBuffor[x, y] = z;
+
                             if (model.GetType() == typeof(Sphere))
                                 N = (model as Sphere).N(x, y, (int)z);
-                            zBuffor[x, y] = z;
-                            bitmap.SetPixel(x, y, model.Color);
+
+                            Vector<double> coordinates = Vector<double>.Build.DenseOfArray(new double[3] { x, y, z });
+
+                            bitmap.SetPixel(x, y, Lighting.CalculateColor(coordinates, N, model.Color));
                         }
                     }
                 }
@@ -139,7 +133,7 @@ namespace GK3D
             if (0 <= x && x < bitmap.Width && 0 <= y && y < bitmap.Height)
             {
                 double z = triangle.Z(x, y);
-                if (z <= zBuffor[x, y])
+                if (z >= zBuffor[x, y])
                 {
                     zBuffor[x, y] = z;
                     bitmap.SetPixel(x, y, lineColor);
@@ -169,7 +163,7 @@ namespace GK3D
                     if (0 <= x && x < bitmap.Width && 0 <= y && y < bitmap.Height)
                     {
                         double z = triangle.Z(x, y);
-                        if (z <= zBuffor[x, y])
+                        if (z >= zBuffor[x, y])
                         {
                             zBuffor[x, y] = z;
                             bitmap.SetPixel(x, y, lineColor);
@@ -201,7 +195,7 @@ namespace GK3D
                     if (0 <= x && x < bitmap.Width && 0 <= y && y < bitmap.Height)
                     {
                         double z = triangle.Z(x, y);
-                        if (z <= zBuffor[x, y])
+                        if (z >= zBuffor[x, y])
                         {
                             zBuffor[x, y] = z;
                             bitmap.SetPixel(x, y, lineColor);

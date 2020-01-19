@@ -12,6 +12,18 @@ namespace GK3D
 {
     public static class Initializers
     {
+        public static List<Light> InitializeLights()
+        {
+            return new List<Light>()
+            {
+                new Light()
+                {
+                    position = Vector<double>.Build.DenseOfArray(new double[3] { 0, 0, 5 }),
+                    color = Color.FromArgb(255, 240, 188)
+                }
+            };
+        }
+
         public static List<IModel> InitializeModels()
         {
             var initialModels = new List<IModel>();
@@ -73,7 +85,7 @@ namespace GK3D
             initialModels.Add(new Cuboid(points1, matrix1, Color.Aqua));
             initialModels.Add(new Cuboid(points2, matrix2, Color.BlueViolet));
 
-            initialModels.Add(new Sphere(1, matrix3, Color.PaleGreen));
+            initialModels.Add(new Sphere(1.2, matrix3, Color.PaleGreen));
 
             return initialModels;
         }

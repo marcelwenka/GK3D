@@ -15,17 +15,16 @@ namespace GK3D
 {
     public partial class Form : System.Windows.Forms.Form
     {
-        int desiredfps = 22;
+        bool isIdle = true;
         int actualfps = 0;
         ProjectionMatrix projectionMatrix;
         ViewMatrix viewMatrix;
         DirectBitmap canvas;
         List<IModel> models;
-        Timer animationTimer;
+        //Timer animationTimer;
         Timer fpsTimer;
         CameraType cameraType = CameraType.Fixed;
         double i = 0;
-
 
         public Form()
         {
@@ -35,32 +34,48 @@ namespace GK3D
 
             cameraComboBox.DataSource = Enum.GetValues(typeof(CameraType));
 
-            Drawing.ReinitializeZBuffor(pictureBox.Width, pictureBox.Height);
+            Drawing.width = pictureBox.Width;
+            Drawing.height = pictureBox.Height;
+            Drawing.ReinitializeZBuffor();
 
             projectionMatrix = new ProjectionMatrix((double)pictureBox.Height / pictureBox.Width);
             viewMatrix = new ViewMatrix();
 
             models = Initializers.InitializeModels();
+            Lighting.lights = Initializers.InitializeLights();
+            Lighting.cameraPosition = viewMatrix.CameraPosition;
 
-            animationTimer = new Timer() { Interval = 1000 / desiredfps };
-            animationTimer.Tick += Animation;
-            animationTimer.Start();
+            //animationTimer = new Timer() { Interval = 50 };
+            //animationTimer.Tick += Animation;
+            //animationTimer.Start();
+
+            _ = Animation();
 
             fpsTimer = new Timer() { Interval = 1000 };
             fpsTimer.Tick += (object sender, EventArgs eventArgs) => { fpsLabel.Text = $"{actualfps}"; actualfps = 0; };
             fpsTimer.Start();
         }
 
+        public async Task Animation()
+        {
+            while (true)
+                if (isIdle)
+                    await Task.Run(() => Animation(new object(), new EventArgs())).ContinueWith(task => isIdle = true);
+        }
+
         public void Draw()
         {
-            Drawing.ClearZBuffor();
+            Drawing.ReinitializeZBuffor();
 
             using (var graphics = Graphics.FromImage(canvas.Bitmap))
             {
                 graphics.Clear(Color.Black);
             }
 
-            Parallel.ForEach(models, model => DrawModel(model));
+            //Parallel.ForEach(models, model => DrawModel(model));
+
+            var tasks = models.Select(model => Task.Run(() => DrawModel(model)));
+            Task.WhenAll(tasks).Wait();
 
             pictureBox.Image = canvas.Bitmap;
         }
@@ -83,13 +98,16 @@ namespace GK3D
                 double x = (calculatedPoint[0] + 1) * pictureBox.Width / 2;
                 double y = (calculatedPoint[1] + 1) * pictureBox.Height / 2;
 
-                calculatedPoints.Add(new Vertex((int)Math.Round(x), (int)Math.Round(y), calculatedPoint[2]));
+                calculatedPoints.Add(new Vertex((int)Math.Round(x), (int)Math.Round(y), -(calculatedPoint[2] - 1) * 1000));
             }
 
             model.Center = Vector<double>.Build.DenseOfArray(new double[3] { calculatedPoints[0].X - calculatedPoints[5].X, calculatedPoints[0].Y - calculatedPoints[5].Y, calculatedPoints[0].Z - calculatedPoints[5].Z });
             model.Triangles = model.TriangleIndexes.Select(indexes => new Triangle(calculatedPoints[indexes.Item1], calculatedPoints[indexes.Item2], calculatedPoints[indexes.Item3])).ToList();
 
-            Parallel.ForEach(model.Triangles, triangle => canvas.Fill(triangle, model));
+            //Parallel.ForEach(model.Triangles, triangle => canvas.Fill(triangle, model));
+
+            var tasks = model.Triangles.Select(triangle => Task.Run(() => canvas.Fill(triangle, model)));
+            Task.WhenAll(tasks).Wait();
         }
     }
 }

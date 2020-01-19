@@ -27,7 +27,7 @@ namespace GK3D.Models
             var U = Vector<double>.Build.DenseOfArray(new double[3] { triangle.points[1].X - triangle.points[0].X, triangle.points[1].Y - triangle.points[0].Y, triangle.points[1].Z - triangle.points[0].Z});
             var V = Vector<double>.Build.DenseOfArray(new double[3] { triangle.points[2].X - triangle.points[0].X, triangle.points[2].Y - triangle.points[0].Y, triangle.points[2].Z - triangle.points[0].Z});
 
-            return MathExtensions.CrossProduct(U, V);
+            return MathExtensions.CrossProduct(U, V).Normalize(2);
         }
 
         public Cuboid(List<Vector<double>> points, Matrix<double> matrix, Color color)

@@ -23,7 +23,7 @@ namespace GK3D
             var w1 = ((points[2].Y - points[0].Y) * (x - points[2].X) + (points[0].X - points[2].X) * (y - points[2].Y)) / denominator;
             var w2 = 1 - w1 - w0;
 
-            return (w0 * points[0].Z + w1 * points[1].Z + w2 * points[2].Z);
+            return w0 * points[0].Z + w1 * points[1].Z + w2 * points[2].Z;
         }
 
         public int[] GetSortedIndexes()

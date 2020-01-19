@@ -55,6 +55,7 @@
       <SubType>Form</SubType>
     </Compile>
     <Compile Include="CameraType.cs" />
+    <Compile Include="ColorCalculation.cs" />
     <Compile Include="DirectBitmap.cs" />
     <Compile Include="Drawing.cs" />
     <Compile Include="Form.EventHandlers.cs">
@@ -68,6 +69,7 @@
       <DependentUpon>Form.cs</DependentUpon>
     </Compile>
     <Compile Include="Initializers.cs" />
+    <Compile Include="Light.cs" />
     <Compile Include="MathExtensions.cs" />
     <Compile Include="Models\IModel.cs" />
     <Compile Include="Models\Cuboid.cs" />

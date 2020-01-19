@@ -11,7 +11,9 @@ namespace GK3D
 
         private void Form_Resize(object sender, EventArgs eventArgs)
         {
-            Drawing.ReinitializeZBuffor(pictureBox.Width, pictureBox.Height);
+            Drawing.width = pictureBox.Width;
+            Drawing.height = pictureBox.Height;
+            Drawing.ReinitializeZBuffor();
 
             projectionMatrix.a = (double)pictureBox.Height / pictureBox.Width;
             canvas = new DirectBitmap(pictureBox.Width, pictureBox.Height);
