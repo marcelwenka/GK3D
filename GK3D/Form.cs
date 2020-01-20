@@ -45,7 +45,7 @@ namespace GK3D
             Lighting.lights = Initializers.InitializeLights();
             Lighting.cameraPosition = viewMatrix.CameraPosition;
 
-            //animationTimer = new Timer() { Interval = 50 };
+            //animationTimer = new Timer() { Interval = 500 };
             //animationTimer.Tick += Animation;
             //animationTimer.Start();
 
@@ -67,15 +67,27 @@ namespace GK3D
         {
             Drawing.ReinitializeZBuffor();
 
-            using (var graphics = Graphics.FromImage(canvas.Bitmap))
-            {
-                graphics.Clear(Color.Black);
-            }
+            //try
+            //{
+            //    using (var graphics = Graphics.FromImage(canvas.Bitmap))
+            //    {
+            //        graphics.Clear(Color.Black);
+            //    }
+            //}
+            //catch
+            //{
+            //    return;
+            //}
 
-            //Parallel.ForEach(models, model => DrawModel(model));
+            canvas.Clear(Color.Black);
 
-            var tasks = models.Select(model => Task.Run(() => DrawModel(model)));
-            Task.WhenAll(tasks).Wait();
+            Parallel.ForEach(models, model => DrawModel(model));
+
+            //foreach (var model in models)
+            //    DrawModel(model);
+
+            //var tasks = models.Select(model => Task.Run(() => DrawModel(model)));
+            //Task.WhenAll(tasks).Wait();
 
             pictureBox.Image = canvas.Bitmap;
         }
@@ -89,10 +101,9 @@ namespace GK3D
             {
                 var calculatedPoint = matrix * p;
 
-                for (int i = 0; i < 3; i++)
-                {
-                    calculatedPoint[i] /= calculatedPoint[3];
-                }
+                if (calculatedPoint[3] != 0)
+                    for (int i = 0; i < 3; i++)
+                        calculatedPoint[i] /= calculatedPoint[3];
                 calculatedPoint[3] = 1;
 
                 double x = (calculatedPoint[0] + 1) * pictureBox.Width / 2;
@@ -101,13 +112,41 @@ namespace GK3D
                 calculatedPoints.Add(new Vertex((int)Math.Round(x), (int)Math.Round(y), -(calculatedPoint[2] - 1) * 1000));
             }
 
-            model.Center = Vector<double>.Build.DenseOfArray(new double[3] { calculatedPoints[0].X - calculatedPoints[5].X, calculatedPoints[0].Y - calculatedPoints[5].Y, calculatedPoints[0].Z - calculatedPoints[5].Z });
-            model.Triangles = model.TriangleIndexes.Select(indexes => new Triangle(calculatedPoints[indexes.Item1], calculatedPoints[indexes.Item2], calculatedPoints[indexes.Item3])).ToList();
+            foreach (var light in Lighting.lights)
+            {
+                var calculatedPosition = matrix * light.nominalPosition;
+                if (calculatedPosition[3] != 0)
+                    for (int i = 0; i < 3; i++)
+                        calculatedPosition[i] /= calculatedPosition[3];
+
+                light.actualPosition = Vector<double>.Build.Dense(new double[3]
+                {
+                    (calculatedPosition[0] + 1) * pictureBox.Width / 2,
+                    (calculatedPosition[1] + 1) * pictureBox.Height / 2,
+                    -(calculatedPosition[2] - 1) * 1000
+                });
+            }
+
+            model.Center = Vector<double>.Build.Dense(new double[3]
+            {
+                (calculatedPoints[0].X + calculatedPoints[5].X) / 2,
+                (calculatedPoints[0].Y + calculatedPoints[5].Y) / 2,
+                (calculatedPoints[0].Z + calculatedPoints[5].Z) / 2
+            });
+            model.Triangles = model.TriangleIndexes.Select(indexes =>
+                new Triangle(
+                    calculatedPoints[indexes.Item1],
+                    calculatedPoints[indexes.Item2],
+                    calculatedPoints[indexes.Item3])
+                ).ToList();
 
             //Parallel.ForEach(model.Triangles, triangle => canvas.Fill(triangle, model));
 
-            var tasks = model.Triangles.Select(triangle => Task.Run(() => canvas.Fill(triangle, model)));
-            Task.WhenAll(tasks).Wait();
+            foreach (var triangle in model.Triangles)
+                canvas.Fill(triangle, model);
+
+            //var tasks = model.Triangles.Select(triangle => Task.Run(() => canvas.Fill(triangle, model)));
+            //Task.WhenAll(tasks).Wait();
         }
     }
 }

@@ -19,7 +19,8 @@ namespace GK3D.Models
 
         public Vector<double> N(double x, double y, double z)
         {
-            return Vector<double>.Build.DenseOfArray(new double[3] { x - Center[0], y - Center[1], z - Center[2] }).Normalize(2);
+            return Vector<double>.Build.Dense(new double[3] { x - Center[0], y - Center[1], z - Center[2] }).Normalize(2);
+            //return Vector<double>.Build.Dense(new double[3] { Center[0] - x, Center[1] - y, Center[2] - z }).Normalize(2);
         }
 
         public Sphere(double radius, Matrix<double> matrix, Color color)
@@ -29,12 +30,12 @@ namespace GK3D.Models
 
             Points = new List<Vector<double>>
             {
-                Vector<double>.Build.DenseOfArray(new double[4] { 0, 0, radius, 1 }),
-                Vector<double>.Build.DenseOfArray(new double[4] { radius, 0, 0, 1 }),
-                Vector<double>.Build.DenseOfArray(new double[4] { 0, radius, 0, 1 }),
-                Vector<double>.Build.DenseOfArray(new double[4] { -radius, 0, 0, 1 }),
-                Vector<double>.Build.DenseOfArray(new double[4] { 0, -radius, 0, 1 }),
-                Vector<double>.Build.DenseOfArray(new double[4] { 0, 0, -radius, 1 })
+                Vector<double>.Build.Dense(new double[4] { 0, 0, radius, 1 }),
+                Vector<double>.Build.Dense(new double[4] { radius, 0, 0, 1 }),
+                Vector<double>.Build.Dense(new double[4] { 0, radius, 0, 1 }),
+                Vector<double>.Build.Dense(new double[4] { -radius, 0, 0, 1 }),
+                Vector<double>.Build.Dense(new double[4] { 0, -radius, 0, 1 }),
+                Vector<double>.Build.Dense(new double[4] { 0, 0, -radius, 1 })
             };
 
             TriangleIndexes = new List<(int, int, int)>

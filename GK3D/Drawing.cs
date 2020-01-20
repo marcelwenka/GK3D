@@ -27,6 +27,14 @@ namespace GK3D
             var AET = new List<AETNode>();
             int k = 0;
 
+            //var vector1 = triangle.points[indexes[0]] - triangle.points[indexes[1]];
+            //var vector2 = triangle.points[indexes[2]] - triangle.points[indexes[1]];
+
+            //var cosine = Math.Abs(MathExtensions.DotProduct(vector1, vector2) / MathExtensions.Length(vector1) / MathExtensions.Length(vector2));
+
+            //if (cosine > 0.99)
+            //    return;
+
             Vector<double> N = null;
 
             if (model is Cuboid)
@@ -81,7 +89,12 @@ namespace GK3D
                     k++;
                 }
 
-                AET.Sort((p1, p2) => (int)(p1.x - p2.x));
+                if (AET.Count > 0 && AET[1].x < AET[0].x)
+                {
+                    AET.Add(AET[0]);
+                    AET.RemoveAt(0);
+                }
+
                 for (int i = 0; i < AET.Count; i += 2)
                 {
                     int xLowerBound = (int)AET[i].x >= 0 ? (int)AET[i].x : 0;
@@ -96,9 +109,10 @@ namespace GK3D
                             if (model.GetType() == typeof(Sphere))
                                 N = (model as Sphere).N(x, y, (int)z);
 
-                            Vector<double> coordinates = Vector<double>.Build.DenseOfArray(new double[3] { x, y, z });
+                            Vector<double> coordinates = Vector<double>.Build.Dense(new double[3] { x, y, z });
 
                             bitmap.SetPixel(x, y, Lighting.CalculateColor(coordinates, N, model.Color));
+                            //bitmap.SetPixel(x, y, Color.Navy);
                         }
                     }
                 }

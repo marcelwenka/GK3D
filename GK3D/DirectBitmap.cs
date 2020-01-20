@@ -28,10 +28,17 @@ namespace GK3D
             Bitmap = new Bitmap(width, height, width * 4, PixelFormat.Format32bppPArgb, BitsHandle.AddrOfPinnedObject());
         }
 
-        public void SetPixel(int x, int y, Color colour)
+        public void Clear(Color color)
+        {
+            int col = color.ToArgb();
+            for (int index = 0; index < Width * Height; index++)
+                Bits[index] = col;
+        }
+
+        public void SetPixel(int x, int y, Color color)
         {
             int index = x + (y * Width);
-            int col = colour.ToArgb();
+            int col = color.ToArgb();
 
             Bits[index] = col;
         }

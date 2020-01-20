@@ -18,7 +18,7 @@ namespace GK3D
             {
                 new Light()
                 {
-                    position = Vector<double>.Build.DenseOfArray(new double[3] { 0, 0, 5 }),
+                    nominalPosition = Vector<double>.Build.Dense(new double[4] { -4.5, -0.5, 0, 1 }),
                     color = Color.FromArgb(255, 240, 188)
                 }
             };
@@ -49,26 +49,26 @@ namespace GK3D
 
             var points1 = new List<Vector<double>>()
             {
-                Vector<double>.Build.DenseOfArray(new double[4] { -1, -1, -1, 1 }),
-                Vector<double>.Build.DenseOfArray(new double[4] { 1, -1, -1, 1 }),
-                Vector<double>.Build.DenseOfArray(new double[4] { 1, 1, -1, 1 }),
-                Vector<double>.Build.DenseOfArray(new double[4] { -1, 1, -1, 1 }),
-                Vector<double>.Build.DenseOfArray(new double[4] { -1, -1, 1, 1 }),
-                Vector<double>.Build.DenseOfArray(new double[4] { 1, -1, 1, 1 }),
-                Vector<double>.Build.DenseOfArray(new double[4] { 1, 1, 1, 1 }),
-                Vector<double>.Build.DenseOfArray(new double[4] { -1, 1, 1, 1 })
+                Vector<double>.Build.Dense(new double[4] { -1, -1, -1, 1 }),
+                Vector<double>.Build.Dense(new double[4] { 1, -1, -1, 1 }),
+                Vector<double>.Build.Dense(new double[4] { 1, 1, -1, 1 }),
+                Vector<double>.Build.Dense(new double[4] { -1, 1, -1, 1 }),
+                Vector<double>.Build.Dense(new double[4] { -1, -1, 1, 1 }),
+                Vector<double>.Build.Dense(new double[4] { 1, -1, 1, 1 }),
+                Vector<double>.Build.Dense(new double[4] { 1, 1, 1, 1 }),
+                Vector<double>.Build.Dense(new double[4] { -1, 1, 1, 1 })
             };
 
             var points2 = new List<Vector<double>>()
             {
-                Vector<double>.Build.DenseOfArray(new double[4] { -0.5, -0.5, -0.5, 1 }),
-                Vector<double>.Build.DenseOfArray(new double[4] { 0.5, -0.5, -0.5, 1 }),
-                Vector<double>.Build.DenseOfArray(new double[4] { 0.5, 0.5, -0.5, 1 }),
-                Vector<double>.Build.DenseOfArray(new double[4] { -0.5, 0.5, -0.5, 1 }),
-                Vector<double>.Build.DenseOfArray(new double[4] { -0.5, -0.5, 0.5, 1 }),
-                Vector<double>.Build.DenseOfArray(new double[4] { 0.5, -0.5, 0.5, 1 }),
-                Vector<double>.Build.DenseOfArray(new double[4] { 0.5, 0.5, 0.5, 1 }),
-                Vector<double>.Build.DenseOfArray(new double[4] { -0.5, 0.5, 0.5, 1 })
+                Vector<double>.Build.Dense(new double[4] { -0.5, -0.5, -0.5, 1 }),
+                Vector<double>.Build.Dense(new double[4] { 0.5, -0.5, -0.5, 1 }),
+                Vector<double>.Build.Dense(new double[4] { 0.5, 0.5, -0.5, 1 }),
+                Vector<double>.Build.Dense(new double[4] { -0.5, 0.5, -0.5, 1 }),
+                Vector<double>.Build.Dense(new double[4] { -0.5, -0.5, 0.5, 1 }),
+                Vector<double>.Build.Dense(new double[4] { 0.5, -0.5, 0.5, 1 }),
+                Vector<double>.Build.Dense(new double[4] { 0.5, 0.5, 0.5, 1 }),
+                Vector<double>.Build.Dense(new double[4] { -0.5, 0.5, 0.5, 1 })
             };
 
 

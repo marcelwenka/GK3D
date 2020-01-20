@@ -10,7 +10,6 @@ namespace GK3D
         public static double ka = 0.2;
         public static double kd = 0.7;
         public static double ks = 1;
-        public static double m = 2;
 
         public static Vector<double> cameraPosition;
 
@@ -18,19 +17,23 @@ namespace GK3D
 
         public static Color CalculateColor(Vector<double> coordinates, Vector<double> N, Color color)
         {
-            double red = ka * color.R;
-            double green = ka * color.G;
-            double blue = ka * color.B;
+            int m = lights.Count;
+
+            double red = ka * color.R / 255;
+            double green = ka * color.G / 255;
+            double blue = ka * color.B / 255;
 
             foreach (var light in lights)
             {
-                var L = (coordinates - light.position).Normalize(2);
+                var L = (coordinates - light.actualPosition).Normalize(2);
                 var V = (coordinates - cameraPosition).Normalize(2);
-                var R = 2 * MathExtensions.CrossProduct(N, L) * N - L;
+                var R = 2 * MathExtensions.Cos(N, L) * N - L;
 
-                red += color.R * light.color.R * (kd * light.color.R * MathExtensions.Cos(N, L) + ks * Math.Pow(MathExtensions.Cos(R, V), m));
-                green += color.G * light.color.G * (kd * light.color.G * MathExtensions.Cos(N, L) + ks * Math.Pow(MathExtensions.Cos(R, V), m));
-                blue += color.B * light.color.B * (kd * light.color.B * MathExtensions.Cos(N, L) + ks * Math.Pow(MathExtensions.Cos(R, V), m));
+                var lightCulaculations = kd * MathExtensions.Cos(N, L) + ks * Math.Pow(MathExtensions.Cos(R, V), m);
+
+                red += color.R / 255.0 * light.color.R / 255.0 * lightCulaculations;
+                green += color.G / 255.0 * light.color.G / 255.0 * lightCulaculations;
+                blue += color.B / 255.0 * light.color.B / 250.0 * lightCulaculations;
             }
 
             return Color.FromArgb(ConvertTo256(red), ConvertTo256(green), ConvertTo256(blue));

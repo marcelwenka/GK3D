@@ -28,15 +28,15 @@ namespace GK3D
             {
                 case CameraType.Fixed:
                     viewMatrix.CameraPosition = ViewMatrix.DefaultCameraPosition;
-                    viewMatrix.CameraTarget = Vector<double>.Build.DenseOfArray(new double[3] { 0, 0.5, 0.5 });
+                    viewMatrix.CameraTarget = Vector<double>.Build.Dense(new double[3] { 0, 0.5, 0.5 });
                     break;
                 case CameraType.FollowingMoving:
-                    viewMatrix.CameraPosition = ViewMatrix.DefaultCameraPosition + Vector<double>.Build.DenseOfArray(new double[3] { models[1].Matrix[0, 3], models[1].Matrix[1, 3], models[1].Matrix[2, 3] });
-                    viewMatrix.CameraTarget = Vector<double>.Build.DenseOfArray(new double[3] { models[1].Matrix[0, 3], models[1].Matrix[1, 3], models[1].Matrix[2, 3] });
+                    viewMatrix.CameraPosition = ViewMatrix.DefaultCameraPosition + Vector<double>.Build.Dense(new double[3] { models[1].Matrix[0, 3], models[1].Matrix[1, 3], models[1].Matrix[2, 3] });
+                    viewMatrix.CameraTarget = Vector<double>.Build.Dense(new double[3] { models[1].Matrix[0, 3], models[1].Matrix[1, 3], models[1].Matrix[2, 3] });
                     break;
                 case CameraType.FollowingFixed:
                     viewMatrix.CameraPosition = ViewMatrix.DefaultCameraPosition;
-                    viewMatrix.CameraTarget = Vector<double>.Build.DenseOfArray(new double[3] { models[1].Matrix[0, 3], models[1].Matrix[1, 3], models[1].Matrix[2, 3] });
+                    viewMatrix.CameraTarget = Vector<double>.Build.Dense(new double[3] { models[1].Matrix[0, 3], models[1].Matrix[1, 3], models[1].Matrix[2, 3] });
                     break;
             }
 
@@ -45,10 +45,10 @@ namespace GK3D
             models[0].Matrix[1, 0] = -Math.Sin(i);
             models[0].Matrix[1, 1] = Math.Cos(i);
 
-            //models[1].Matrix[1, 1] = Math.Cos(3 * i);
-            //models[1].Matrix[1, 2] = Math.Sin(3 * i);
-            //models[1].Matrix[2, 1] = -Math.Sin(3 * i);
-            //models[1].Matrix[2, 2] = Math.Cos(3 * i);
+            models[1].Matrix[1, 1] = Math.Cos(3 * i);
+            models[1].Matrix[1, 2] = Math.Sin(3 * i);
+            models[1].Matrix[2, 1] = -Math.Sin(3 * i);
+            models[1].Matrix[2, 2] = Math.Cos(3 * i);
 
             Draw();
         }
