@@ -29,6 +29,11 @@ namespace GK3D
             Drawing.drawLines = drawLinesCheckbox.Checked;
         }
 
+        private void parallelCheckbox_CheckedChanged(object sender, EventArgs e)
+        {
+            parallel = parallelCheckbox.Checked;
+        }
+
         private void kaSlider_ValueChanged(object sender, EventArgs e)
         {
             ColorCalculation.ka = kaSlider.Value / 100.0;
@@ -64,6 +69,30 @@ namespace GK3D
         {
             projectionMatrix.fov = fovSlider.Value / 100.0 * Math.PI;
             fovLabel.Text = "fov: " + fovSlider.Value;
+        }
+
+        private void xCameraSlider_ValueChanged(object sender, EventArgs e)
+        {
+            ViewMatrix.DefaultCameraPosition[0] = xCameraSlider.Value / 10.0;
+            xCameraLabel.Text = "x: " + xCameraSlider.Value / 10.0;
+        }
+
+        private void yCameraSlider_ValueChanged(object sender, EventArgs e)
+        {
+            ViewMatrix.DefaultCameraPosition[1] = yCameraSlider.Value / 10.0;
+            yCameraLabel.Text = "y: " + yCameraSlider.Value / 10.0;
+        }
+
+        private void zCameraSlider_ValueChanged(object sender, EventArgs e)
+        {
+            ViewMatrix.DefaultCameraPosition[2] = zCameraSlider.Value / -10.0;
+            zCameraLabel.Text = "z: " + zCameraSlider.Value / 10.0;
+        }
+
+        private void movementSpeedSlider_ValueChanged(object sender, EventArgs e)
+        {
+            movementSpeed = movementSpeedSlider.Value / 1000.0;
+            movementSpeedLabel.Text = "Movement speed: " + movementSpeed;
         }
     }
 }

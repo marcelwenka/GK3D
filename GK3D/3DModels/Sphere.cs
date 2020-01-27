@@ -20,12 +20,6 @@ namespace GK3D.Models
         public Vector<double> N(double x, double y, double z)
         {
             return Vector<double>.Build.Dense(new double[3] { x - Matrix[0, 3], y - Matrix[1, 3], z - Matrix[2, 3] }).Normalize(2);
-
-            //return Vector<double>.Build.Dense(new double[3] { Matrix[0, 3] - x, y - Matrix[1, 3], Matrix[2, 3] - z }).Normalize(2);
-            //return Vector<double>.Build.Dense(new double[3] { Center[0] - x, y - Center[1] - y, z - Center[2] }).Normalize(2);
-            //return Vector<double>.Build.Dense(new double[3] { Center[0] - x, Center[1] - y, Center[2] - z }).Normalize(2);
-            //return Vector<double>.Build.Dense(new double[3] { x - Center[0], Center[1] - y, Center[2] - z }).Normalize(2);
-            //return Vector<double>.Build.Dense(new double[3] { Center[0] - x, y - Center[1], Center[2] - z }).Normalize(2);
         }
 
         public Sphere(double radius, Matrix<double> matrix, Color color)
@@ -49,7 +43,7 @@ namespace GK3D.Models
                 (1, 0, 4), (4, 0, 3), (3, 0, 2), (2, 0, 1)
             };
 
-            for (int depth = 0; depth < 5; depth++)
+            for (int depth = 0; depth < 3; depth++)
             {
                 int TriangleIndexesCount = TriangleIndexes.Count();
                 for (int i = 0; i < TriangleIndexesCount; i++)

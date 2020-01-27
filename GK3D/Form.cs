@@ -21,7 +21,7 @@ namespace GK3D
         readonly ViewMatrix viewMatrix;
         DirectBitmap canvas;
         readonly List<IModel> models;
-        //Timer animationTimer;
+        bool parallel = true;
         readonly Timer fpsTimer;
         CameraType cameraType = CameraType.Fixed;
 
@@ -66,12 +66,11 @@ namespace GK3D
 
             canvas.Clear(Color.Black);
 
-            Parallel.ForEach(models, model => DrawModel(model));
-
-            //foreach (var model in models)
-            //{
-            //    DrawModel(model);
-            //}
+            if (parallel)
+                Parallel.ForEach(models, model => DrawModel(model));
+            else
+                foreach (var model in models)
+                    DrawModel(model);
 
             pictureBox.Image = canvas.Bitmap;
         }
@@ -133,8 +132,10 @@ namespace GK3D
 
             foreach (var triangle in model.Triangles)
             {
-                //canvas.Fill(triangle, model);
-                try { canvas.Fill(triangle, model); }
+                try // when resizing the window or changing from Phong to Gouraud some calculations are interrupted in the middle and an exception is thrown
+                {
+                    canvas.Fill(triangle, model);
+                }
                 catch { }
             }
         }

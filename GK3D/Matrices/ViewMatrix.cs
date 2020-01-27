@@ -14,7 +14,7 @@ namespace GK3D
         private Vector<double> cameraTarget = Vector<double>.Build.Dense(new double[3] { 0, 0, 0 });
         private Vector<double> upVector = Vector<double>.Build.Dense(new double[3] { 0, 0, 1 });
 
-        public static readonly Vector<double> DefaultCameraPosition = Vector<double>.Build.Dense(new double[3] { 5, 0, -2 });
+        public static Vector<double> DefaultCameraPosition = Vector<double>.Build.Dense(new double[3] { 5, 0, -2 });
 
         public Vector<double> CameraPosition
         {
