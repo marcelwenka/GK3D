@@ -1,4 +1,5 @@
-﻿using System;
+﻿using MathNet.Numerics.LinearAlgebra;
+using System;
 using System.Collections.Generic;
 using System.Drawing;
 using System.Linq;
@@ -10,36 +11,53 @@ namespace GK3D
     public class Triangle
     {
         public Vertex[] points;
-        public double w0;
-        public double w1;
-        public double w2;
 
         public Triangle(Vertex _p1, Vertex _p2, Vertex _p3)
         {
             points = new Vertex[3] { _p1, _p2, _p3 };
         }
 
-        public double Z(int x, int y)
+        public (double, double, double) GetWeights(int x, int y)
         {
-            double denominator = (points[1].Y - points[2].Y) * (points[0].X - points[2].X) + (points[2].X - points[1].X) * (points[0].Y - points[2].Y);
-            w0 = ((points[1].Y - points[2].Y) * (x - points[2].X) + (points[2].X - points[1].X) * (y - points[2].Y)) / denominator;
-            w1 = ((points[2].Y - points[0].Y) * (x - points[2].X) + (points[0].X - points[2].X) * (y - points[2].Y)) / denominator;
-            w2 = 1 - w1 - w0;
+            double denominator = (points[1].projectionY - points[2].projectionY) * (points[0].projectionX - points[2].projectionX) + (points[2].projectionX - points[1].projectionX) * (points[0].projectionY - points[2].projectionY);
+            var w0 = ((points[1].projectionY - points[2].projectionY) * (x - points[2].projectionX) + (points[2].projectionX - points[1].projectionX) * (y - points[2].projectionY)) / denominator;
+            var w1 = ((points[2].projectionY - points[0].projectionY) * (x - points[2].projectionX) + (points[0].projectionX - points[2].projectionX) * (y - points[2].projectionY)) / denominator;
+            var w2 = 1 - w1 - w0;
 
-            return w0 * points[0].Z + w1 * points[1].Z + w2 * points[2].Z;
+            return (w0, w1, w2);
+        }
+
+        public double Z(double w0, double w1, double w2)
+        {
+            return w0 * points[0].projectionZ + w1 * points[1].projectionZ + w2 * points[2].projectionZ;
+        }
+
+        public double[] interpolateXYZ(double w0, double w1, double w2)
+        {
+            return new double[3]
+            {
+                w0 * points[0].worldX + w1 * points[1].worldX + w2 * points[2].worldX,
+                w0 * points[0].worldY + w1 * points[1].worldY + w2 * points[2].worldY,
+                w0 * points[0].worldZ + w1 * points[1].worldZ + w2 * points[2].worldZ
+            };
+        }
+
+        public Vector<double> interpolateN(double w0, double w1, double w2)
+        {
+            return w0 * points[0].N + w1 * points[1].N + w2 * points[2].N;
         }
 
         public int[] GetSortedIndexes()
         {
             var indexes = new int[3];
 
-            if (points[0].Y < points[1].Y)
+            if (points[0].projectionY < points[1].projectionY)
             {
-                if (points[0].Y < points[2].Y)
+                if (points[0].projectionY < points[2].projectionY)
                 {
                     indexes[0] = 0;
 
-                    if (points[1].Y < points[2].Y)
+                    if (points[1].projectionY < points[2].projectionY)
                     {
                         indexes[1] = 1;
                         indexes[2] = 2;
@@ -59,11 +77,11 @@ namespace GK3D
             }
             else
             {
-                if (points[1].Y < points[2].Y)
+                if (points[1].projectionY < points[2].projectionY)
                 {
                     indexes[0] = 1;
 
-                    if (points[0].Y < points[2].Y)
+                    if (points[0].projectionY < points[2].projectionY)
                     {
                         indexes[1] = 0;
                         indexes[2] = 2;
@@ -106,7 +124,7 @@ namespace GK3D
         public AETNode(Vertex _p1, Vertex _p2)
         {
 
-            if (_p1.Y > _p2.Y)
+            if (_p1.projectionY > _p2.projectionY)
             {
                 p1 = _p2;
                 p2 = _p1;
@@ -117,9 +135,9 @@ namespace GK3D
                 p2 = _p2;
             }
 
-            x = p1.X;
+            x = p1.projectionX;
 
-            xd = _p1.Y - _p2.Y != 0 ? (float)(_p1.X - _p2.X) / (_p1.Y - _p2.Y) : 0;
+            xd = _p1.projectionY - _p2.projectionY != 0 ? (float)(_p1.projectionX - _p2.projectionX) / (_p1.projectionY - _p2.projectionY) : 0;
         }
     }
 }

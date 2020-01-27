@@ -18,16 +18,16 @@ namespace GK3D
             {
                 new Light()
                 {
-                    nominalPosition = Vector<double>.Build.Dense(new double[4] { -5, 0, 5, 1 }),
+                    position = Vector<double>.Build.Dense(new double[3] { 10, 0, -10 }),
                     color = Color.FromArgb(255, 240, 188),
                     type = LightType.Point
                 },
                 new Light()
                 {
-                    nominalPosition = Vector<double>.Build.Dense(new double[4] { -3, 0, 0, 1 }),
+                    position = Vector<double>.Build.Dense(new double[3] { 3, 0, 0 }),
                     color = Color.DarkTurquoise,
                     type = LightType.Spot,
-                    direction = Vector<double>.Build.Dense(new double[3] { 1, 0, 0 }).Normalize(2)
+                    direction = Vector<double>.Build.Dense(new double[3] { 1, 0.5, 0 }).Normalize(2)
                 }
             };
         }

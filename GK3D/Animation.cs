@@ -29,7 +29,7 @@ namespace GK3D
             }
 
             models[1].Matrix[1, 3] += movementDirection * movementSpeed;
-            ColorCalculation.lights[1].nominalPosition[1] += movementDirection * movementSpeed * 5;
+            ColorCalculation.lights[1].position[1] += movementDirection * movementSpeed;
 
             switch (cameraType)
             {
@@ -47,10 +47,10 @@ namespace GK3D
                     break;
             }
 
-            //models[0].Matrix[0, 0] = Math.Cos(rotationSpeed);
-            //models[0].Matrix[0, 1] = Math.Sin(rotationSpeed);
-            //models[0].Matrix[1, 0] = -Math.Sin(rotationSpeed);
-            //models[0].Matrix[1, 1] = Math.Cos(rotationSpeed);
+            models[0].Matrix[0, 0] = Math.Cos(rotationSpeed);
+            models[0].Matrix[0, 1] = Math.Sin(rotationSpeed);
+            models[0].Matrix[1, 0] = -Math.Sin(rotationSpeed);
+            models[0].Matrix[1, 1] = Math.Cos(rotationSpeed);
 
             models[1].Matrix[1, 1] = Math.Cos(5 * rotationSpeed);
             models[1].Matrix[1, 2] = Math.Sin(5 * rotationSpeed);

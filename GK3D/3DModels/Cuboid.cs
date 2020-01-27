@@ -24,10 +24,10 @@ namespace GK3D.Models
 
         public Vector<double> N(Triangle triangle)
         {
-            var U = Vector<double>.Build.Dense(new double[3] { triangle.points[1].X - triangle.points[0].X, triangle.points[1].Y - triangle.points[0].Y, triangle.points[1].Z - triangle.points[0].Z});
-            var V = Vector<double>.Build.Dense(new double[3] { triangle.points[2].X - triangle.points[0].X, triangle.points[2].Y - triangle.points[0].Y, triangle.points[2].Z - triangle.points[0].Z});
+            var U = Vector<double>.Build.Dense(new double[3] { triangle.points[1].worldX - triangle.points[0].worldX, triangle.points[1].worldY - triangle.points[0].worldY, triangle.points[1].worldZ - triangle.points[0].worldZ });
+            var V = Vector<double>.Build.Dense(new double[3] { triangle.points[2].worldX - triangle.points[0].worldX, triangle.points[2].worldY - triangle.points[0].worldY, triangle.points[2].worldZ - triangle.points[0].worldZ });
 
-            return MathExtensions.CrossProduct(U, V).Normalize(2);
+            return MathExtensions.CrossProduct(V, U).Normalize(2);
         }
 
         public Cuboid(List<Vector<double>> points, Matrix<double> matrix, Color color)

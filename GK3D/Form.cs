@@ -46,10 +46,6 @@ namespace GK3D
             ColorCalculation.lights = Initializers.InitializeLights();
             ColorCalculation.cameraPosition = viewMatrix.CameraPosition;
 
-            //animationTimer = new Timer() { Interval = 500 };
-            //animationTimer.Tick += Animation;
-            //animationTimer.Start();
-
             _ = Animation();
 
             fpsTimer = new Timer() { Interval = 1000 };
@@ -70,80 +66,77 @@ namespace GK3D
 
             canvas.Clear(Color.Black);
 
-            //Parallel.ForEach(models, model => DrawModel(model));
+            Parallel.ForEach(models, model => DrawModel(model));
 
-            foreach (var model in models)
-            {
-                DrawModel(model);
-            }
-
-            //var tasks = models.Select(model => Task.Run(() => DrawModel(model)));
-            //Task.WhenAll(tasks).Wait();
+            //foreach (var model in models)
+            //{
+            //    DrawModel(model);
+            //}
 
             pictureBox.Image = canvas.Bitmap;
         }
 
         public void DrawModel(IModel model)
         {
-            var matrix = projectionMatrix.Matrix * viewMatrix.Matrix * model.Matrix;
-            var calculatedPoints = new List<Vertex>();
+            var matrix = projectionMatrix.Matrix * viewMatrix.Matrix;
+            var projectionPoints = new List<Vertex>();
 
-            foreach (var p in model.Points)
+            foreach (var point in model.Points)
             {
-                var calculatedPoint = matrix * p;
+                var worldPoint = model.Matrix * point;
 
-                if (calculatedPoint[3] != 0)
+                var projectionPoint = matrix * worldPoint;
+
+                if (projectionPoint[3] != 0)
                     for (int i = 0; i < 3; i++)
-                        calculatedPoint[i] /= calculatedPoint[3];
-                calculatedPoint[3] = 1;
+                        projectionPoint[i] /= projectionPoint[3];
+                projectionPoint[3] = 1;
 
-                double x = (calculatedPoint[0] + 1) * pictureBox.Width / 2;
-                double y = (calculatedPoint[1] + 1) * pictureBox.Height / 2;
+                double x = (projectionPoint[0] + 1) * pictureBox.Width / 2;
+                double y = (projectionPoint[1] + 1) * pictureBox.Height / 2;
 
-                calculatedPoints.Add(new Vertex((int)Math.Round(x), (int)Math.Round(y), -(calculatedPoint[2] - 1) * 1000));
-            }
+                Vector<double> N = null;
 
-            foreach (var light in ColorCalculation.lights)
-            { 
-                var calculatedPosition = projectionMatrix.Matrix * viewMatrix.Matrix * light.nominalPosition;
-                if (calculatedPosition[3] != 0)
-                    for (int i = 0; i < 3; i++)
-                        calculatedPosition[i] /= calculatedPosition[3];
+                if (model is Sphere)
+                    N = (model as Sphere).N(worldPoint[0], worldPoint[1], worldPoint[2]);
 
-                light.actualPosition = Vector<double>.Build.Dense(new double[3]
+                projectionPoints.Add(new Vertex()
                 {
-                    (calculatedPosition[0] + 1) * pictureBox.Width / 2,
-                    (calculatedPosition[1] + 1) * pictureBox.Height / 2,
-                    -(calculatedPosition[2] - 1) * 1000
+                    projectionX = (int)Math.Round(x),
+                    projectionY = (int)Math.Round(y),
+                    projectionZ = -(projectionPoint[2] - 1) * 1000,
+                    worldX = worldPoint[0],
+                    worldY = worldPoint[1],
+                    worldZ = worldPoint[2],
+                    N = N
                 });
-
-                //canvas.SetPixel((int)light.actualPosition[0], (int)light.actualPosition[1], Color.White);
-                //Drawing.zBuffor[(int)light.actualPosition[0], (int)light.actualPosition[1]] = 1000000;
             }
 
-            model.Center = Vector<double>.Build.Dense(new double[3]
-            {
-                (calculatedPoints[0].X + calculatedPoints[5].X) / 2,
-                (calculatedPoints[0].Y + calculatedPoints[5].Y) / 2,
-                (calculatedPoints[0].Z + calculatedPoints[5].Z) / 2
-            });
             model.Triangles = model.TriangleIndexes.Select(indexes =>
                 new Triangle(
-                    calculatedPoints[indexes.Item1],
-                    calculatedPoints[indexes.Item2],
-                    calculatedPoints[indexes.Item3])
+                    projectionPoints[indexes.Item1].Clone(),
+                    projectionPoints[indexes.Item2].Clone(),
+                    projectionPoints[indexes.Item3].Clone())
                 ).ToList();
+
+            if (model is Cuboid)
+            {
+                foreach (Triangle triangle in model.Triangles)
+                {
+                    triangle.points[0].N = (model as Cuboid).N(triangle);
+                    triangle.points[1].N = (model as Cuboid).N(triangle);
+                    triangle.points[2].N = (model as Cuboid).N(triangle);
+                }
+            }
 
             //Parallel.ForEach(model.Triangles, triangle => canvas.Fill(triangle, model));
 
             foreach (var triangle in model.Triangles)
             {
+                //canvas.Fill(triangle, model);
                 try { canvas.Fill(triangle, model); }
                 catch { }
             }
-
-            //var tasks = model.Triangles.Select(triangle => Task.Run(() => canvas.Fill(triangle, model)));
-            //Task.WhenAll(tasks).Wait();
         }
     }
 }

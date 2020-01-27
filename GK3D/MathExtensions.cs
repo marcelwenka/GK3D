@@ -19,10 +19,10 @@ namespace GK3D
             });
         }
 
-        public static double DotProduct(Vertex v1, Vertex v2)
-        {
-            return v1.X * v2.X + v1.Y * v2.Y + v1.Z * v2.Z;
-        }
+        //public static double DotProduct(Vertex v1, Vertex v2)
+        //{
+        //    return v1.X * v2.X + v1.Y * v2.Y + v1.Z * v2.Z;
+        //}
 
         public static double Length3D(this Vector<double> v)
         {

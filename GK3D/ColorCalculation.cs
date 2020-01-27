@@ -17,6 +17,17 @@ namespace GK3D
 
         public static List<Light> lights;
 
+        public static Color Phong(Vertex v, Color color)
+        {
+            var coordinates = Vector<double>.Build.Dense(new double[3] { v.worldX, v.worldY, v.worldZ });
+            return Phong(coordinates, v.N, color);
+        }
+
+        public static Color Phong(double[] coordinates, Vector<double> N, Color color)
+        {
+            return Phong(Vector<double>.Build.Dense(coordinates), N, color);
+        }
+
         public static Color Phong(Vector<double> coordinates, Vector<double> N, Color color)
         {
             double red = ka * color.R;
@@ -25,7 +36,7 @@ namespace GK3D
 
             foreach (var light in lights)
             {
-                var L = (light.actualPosition - coordinates).Normalize(2);
+                var L = (light.position - coordinates).Normalize(2);
                 var V = (cameraPosition - coordinates).Normalize(2);
                 var R = (2 * MathExtensions.Cos(N, L) * N - L).Normalize(2);
 
@@ -57,11 +68,11 @@ namespace GK3D
             return value < 0 ? 0 : value;
         }
 
-        public static Color Gouraud(Color[] colors, Triangle triangle)
+        public static Color Gouraud(Color[] colors, double w0, double w1, double w2)
         {
-            double red = triangle.w0 * colors[0].R + triangle.w1 * colors[1].R + triangle.w2 * colors[2].R;
-            double green = triangle.w0 * colors[0].G + triangle.w1 * colors[1].G + triangle.w2 * colors[2].G;
-            double blue = triangle.w0 * colors[0].B + triangle.w1 * colors[1].B + triangle.w2 * colors[2].B;
+            double red = w0 * colors[0].R + w1 * colors[1].R + w2 * colors[2].R;
+            double green = w0 * colors[0].G + w1 * colors[1].G + w2 * colors[2].G;
+            double blue = w0 * colors[0].B + w1 * colors[1].B + w2 * colors[2].B;
 
             return Color.FromArgb(Trim(red), Trim(green), Trim(blue));
         }

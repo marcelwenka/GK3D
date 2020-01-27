@@ -42,43 +42,30 @@ namespace GK3D
                 {
                     var coordinates = Vector<double>.Build.Dense(new double[3]
                     {
-                        (triangle.points[0].X + triangle.points[1].X + triangle.points[2].X) / 3.0,
-                        (triangle.points[0].Y + triangle.points[1].Y + triangle.points[2].Y) / 3.0,
-                        (triangle.points[0].Z + triangle.points[1].Z + triangle.points[2].Z) / 3.0
+                        (triangle.points[0].worldX + triangle.points[1].worldX + triangle.points[2].worldX) / 3.0,
+                        (triangle.points[0].worldY + triangle.points[1].worldY + triangle.points[2].worldY) / 3.0,
+                        (triangle.points[0].worldZ + triangle.points[1].worldZ + triangle.points[2].worldZ) / 3.0
                     });
                     
-                    if (model is Sphere)
-                        N = (model as Sphere).N(coordinates[0], coordinates[1], coordinates[2]);
-                    
+                    N = triangle.interpolateN(0.333, 0.333, 0.333);
                     constantColor = ColorCalculation.Phong(coordinates, N, model.Color);
                     
                     break;
                 }
                 case ShaderType.Gouraud:
                 {
-                    gouraudColors = new Color[3];
-
-                    for (int i = 0; i < 3; i++)
+                    gouraudColors = new Color[3]
                     {
-                        var coordinates = Vector<double>.Build.Dense(new double[3]
-                        {
-                            triangle.points[i].X,
-                            triangle.points[i].Y,
-                            triangle.points[i].Z
-                        });
-
-                        if (model is Sphere)
-                            N = (model as Sphere).N(coordinates[0], coordinates[1], coordinates[2]);
-
-                        gouraudColors[i] = ColorCalculation.Phong(coordinates, N, model.Color);
-                    }
-
+                        ColorCalculation.Phong(triangle.points[0], model.Color),
+                        ColorCalculation.Phong(triangle.points[1], model.Color),
+                        ColorCalculation.Phong(triangle.points[2], model.Color)
+                    };
                     break;
                 }
             }
 
-            int lowerBound = triangle.points[indexes[0]].Y;
-            int upperBound = triangle.points[indexes[2]].Y >= bitmap.Height ? bitmap.Height - 1 : triangle.points[indexes[2]].Y;
+            int lowerBound = triangle.points[indexes[0]].projectionY;
+            int upperBound = triangle.points[indexes[2]].projectionY >= bitmap.Height ? bitmap.Height - 1 : triangle.points[indexes[2]].projectionY;
 
             if (lowerBound < 0)
             {
@@ -88,7 +75,7 @@ namespace GK3D
                 lowerBound = 0;
 
                 AET.Add(new AETNode(triangle.points[indexes[2]], triangle.points[indexes[0]]));
-                if (triangle.points[indexes[1]].Y < 0)
+                if (triangle.points[indexes[1]].projectionY < 0)
                 {
                     AET.Add(new AETNode(triangle.points[indexes[1]], triangle.points[indexes[2]]));
                     k = 2;
@@ -100,28 +87,28 @@ namespace GK3D
                 }
 
                 foreach (var aetNode in AET)
-                    aetNode.x += aetNode.xd * -aetNode.p1.Y;
+                    aetNode.x += aetNode.xd * -aetNode.p1.projectionY;
 
                 AET.Sort((p1, p2) => (int)(p1.x - p2.x));
             }
 
             for (int y = lowerBound; y <= upperBound; y++)
             {
-                while (triangle.points[indexes[k]].Y == y - 1)
+                while (triangle.points[indexes[k]].projectionY == y - 1)
                 {
                     var prev = triangle.points[Triangle.prev(indexes[k])];
                     var current = triangle.points[indexes[k]];
                     var next = triangle.points[Triangle.next(indexes[k])];
 
-                    if (prev.Y > current.Y)
+                    if (prev.projectionY > current.projectionY)
                         AET.Add(new AETNode(prev, current));
                     else
-                        AET.RemoveAll(aetn => aetn.p2.Y == current.Y);
+                        AET.RemoveAll(aetn => aetn.p2.projectionY == current.projectionY);
 
-                    if (next.Y > current.Y)
+                    if (next.projectionY > current.projectionY)
                         AET.Add(new AETNode(current, next));
                     else
-                        AET.RemoveAll(aetn => aetn.p2.Y == current.Y);
+                        AET.RemoveAll(aetn => aetn.p2.projectionY == current.projectionY);
 
                     k++;
                 }
@@ -138,7 +125,9 @@ namespace GK3D
                     int xUpperBound = (int)Math.Round(AET[i + 1].x) < bitmap.Width ? (int)Math.Round(AET[i + 1].x) : bitmap.Width;
                     for (int x = xLowerBound; x < xUpperBound; x++)
                     {
-                        double z = triangle.Z(x, y);
+                        double w0, w1, w2;
+                        (w0, w1, w2) = triangle.GetWeights(x, y);
+                        double z = triangle.Z(w0, w1, w2);
                         if (z >= zBuffor[x, y])
                         {
                             zBuffor[x, y] = z;
@@ -149,14 +138,13 @@ namespace GK3D
                                     bitmap.SetPixel(x, y, constantColor);
                                     break;
                                 case ShaderType.Gouraud:
-                                    Color gouraudColor = ColorCalculation.Gouraud(gouraudColors, triangle);
+                                    Color gouraudColor = ColorCalculation.Gouraud(gouraudColors, w0, w1, w2);
                                     bitmap.SetPixel(x, y, gouraudColor);
                                     break;
                                 case ShaderType.Phong:
-                                    Vector<double> coordinates = Vector<double>.Build.Dense(new double[3] { x, y, z });
-                                    if (model is Sphere)
-                                        N = (model as Sphere).N(x, y, (int)z);
-                                    Color phongColor = ColorCalculation.Phong(coordinates, N, model.Color);
+
+                                    N = triangle.interpolateN(w0, w1, w2);
+                                    Color phongColor = ColorCalculation.Phong(triangle.interpolateXYZ(w0, w1, w2), N, model.Color);
                                     bitmap.SetPixel(x, y, phongColor);
                                     break;
                             }
@@ -183,7 +171,7 @@ namespace GK3D
             // Bresenham's line algorithm
             // zmienne pomocnicze
             int d, dx, dy, ai, bi, xi, yi;
-            int x1 = from.X, y1 = from.Y, x2 = to.X, y2 = to.Y;
+            int x1 = from.projectionX, y1 = from.projectionY, x2 = to.projectionX, y2 = to.projectionY;
             int x = x1, y = y1;
             // ustalenie kierunku rysowania
             dx = Math.Abs(x2 - x1);
@@ -193,7 +181,9 @@ namespace GK3D
             // pierwszy piksel
             if (0 <= x && x < bitmap.Width && 0 <= y && y < bitmap.Height)
             {
-                double z = triangle.Z(x, y);
+                double w0, w1, w2;
+                (w0, w1, w2) = triangle.GetWeights(x, y);
+                double z = triangle.Z(w0, w1, w2);
                 if (z >= zBuffor[x, y])
                 {
                     zBuffor[x, y] = z;
@@ -223,7 +213,9 @@ namespace GK3D
                     }
                     if (0 <= x && x < bitmap.Width && 0 <= y && y < bitmap.Height)
                     {
-                        double z = triangle.Z(x, y);
+                        double w0, w1, w2;
+                        (w0, w1, w2) = triangle.GetWeights(x, y);
+                        double z = triangle.Z(w0, w1, w2);
                         if (z >= zBuffor[x, y])
                         {
                             zBuffor[x, y] = z;
@@ -255,7 +247,9 @@ namespace GK3D
                     }
                     if (0 <= x && x < bitmap.Width && 0 <= y && y < bitmap.Height)
                     {
-                        double z = triangle.Z(x, y);
+                        double w0, w1, w2;
+                        (w0, w1, w2) = triangle.GetWeights(x, y);
+                        double z = triangle.Z(w0, w1, w2);
                         if (z >= zBuffor[x, y])
                         {
                             zBuffor[x, y] = z;

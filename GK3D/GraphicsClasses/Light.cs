@@ -10,8 +10,7 @@ namespace GK3D
 {
     public class Light
     {
-        public Vector<double> nominalPosition;
-        public Vector<double> actualPosition;
+        public Vector<double> position;
         public Color color;
 
         public LightType type;
