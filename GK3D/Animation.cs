@@ -10,19 +10,26 @@ namespace GK3D
 {
     partial class Form
     {
+        public double rotationSpeed = 0;
+        public double movementSpeed = 0.01;
+        public double movementDirection = 1;
+
         private void Animation(object sender, EventArgs eventArgs)
         {
             isIdle = false;
 
             actualfps++;
 
-            i += 0.02;
-            i %= 2 * Math.PI;
+            rotationSpeed += 0.01;
 
-            if (i < Math.PI)
-                models[1].Matrix[1, 3] = i;
-            else
-                models[1].Matrix[1, 3] = 2 * Math.PI - i;
+            if (rotationSpeed > 6.283)
+            {
+                rotationSpeed %= 6.283;
+                movementDirection *= -1;
+            }
+
+            models[1].Matrix[1, 3] += movementDirection * movementSpeed;
+            ColorCalculation.lights[1].nominalPosition[1] += movementDirection * movementSpeed * 5;
 
             switch (cameraType)
             {
@@ -40,15 +47,15 @@ namespace GK3D
                     break;
             }
 
-            models[0].Matrix[0, 0] = Math.Cos(i);
-            models[0].Matrix[0, 1] = Math.Sin(i);
-            models[0].Matrix[1, 0] = -Math.Sin(i);
-            models[0].Matrix[1, 1] = Math.Cos(i);
+            //models[0].Matrix[0, 0] = Math.Cos(rotationSpeed);
+            //models[0].Matrix[0, 1] = Math.Sin(rotationSpeed);
+            //models[0].Matrix[1, 0] = -Math.Sin(rotationSpeed);
+            //models[0].Matrix[1, 1] = Math.Cos(rotationSpeed);
 
-            models[1].Matrix[1, 1] = Math.Cos(3 * i);
-            models[1].Matrix[1, 2] = Math.Sin(3 * i);
-            models[1].Matrix[2, 1] = -Math.Sin(3 * i);
-            models[1].Matrix[2, 2] = Math.Cos(3 * i);
+            models[1].Matrix[1, 1] = Math.Cos(5 * rotationSpeed);
+            models[1].Matrix[1, 2] = Math.Sin(5 * rotationSpeed);
+            models[1].Matrix[2, 1] = -Math.Sin(5 * rotationSpeed);
+            models[1].Matrix[2, 2] = Math.Cos(5 * rotationSpeed);
 
             Draw();
         }

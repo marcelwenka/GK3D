@@ -17,14 +17,13 @@ namespace GK3D
     {
         bool isIdle = true;
         int actualfps = 0;
-        ProjectionMatrix projectionMatrix;
-        ViewMatrix viewMatrix;
+        readonly ProjectionMatrix projectionMatrix;
+        readonly ViewMatrix viewMatrix;
         DirectBitmap canvas;
-        List<IModel> models;
+        readonly List<IModel> models;
         //Timer animationTimer;
-        Timer fpsTimer;
+        readonly Timer fpsTimer;
         CameraType cameraType = CameraType.Fixed;
-        double i = 0;
 
         public Form()
         {
@@ -33,6 +32,8 @@ namespace GK3D
             canvas = new DirectBitmap(pictureBox.Width, pictureBox.Height);
 
             cameraComboBox.DataSource = Enum.GetValues(typeof(CameraType));
+            shaderComboBox.DataSource = Enum.GetValues(typeof(ShaderType));
+            shaderComboBox.SelectedIndex = 1;
 
             Drawing.width = pictureBox.Width;
             Drawing.height = pictureBox.Height;
@@ -42,8 +43,8 @@ namespace GK3D
             viewMatrix = new ViewMatrix();
 
             models = Initializers.InitializeModels();
-            Lighting.lights = Initializers.InitializeLights();
-            Lighting.cameraPosition = viewMatrix.CameraPosition;
+            ColorCalculation.lights = Initializers.InitializeLights();
+            ColorCalculation.cameraPosition = viewMatrix.CameraPosition;
 
             //animationTimer = new Timer() { Interval = 500 };
             //animationTimer.Tick += Animation;
@@ -67,24 +68,14 @@ namespace GK3D
         {
             Drawing.ReinitializeZBuffor();
 
-            //try
-            //{
-            //    using (var graphics = Graphics.FromImage(canvas.Bitmap))
-            //    {
-            //        graphics.Clear(Color.Black);
-            //    }
-            //}
-            //catch
-            //{
-            //    return;
-            //}
-
             canvas.Clear(Color.Black);
 
-            Parallel.ForEach(models, model => DrawModel(model));
+            //Parallel.ForEach(models, model => DrawModel(model));
 
-            //foreach (var model in models)
-            //    DrawModel(model);
+            foreach (var model in models)
+            {
+                DrawModel(model);
+            }
 
             //var tasks = models.Select(model => Task.Run(() => DrawModel(model)));
             //Task.WhenAll(tasks).Wait();
@@ -112,9 +103,9 @@ namespace GK3D
                 calculatedPoints.Add(new Vertex((int)Math.Round(x), (int)Math.Round(y), -(calculatedPoint[2] - 1) * 1000));
             }
 
-            foreach (var light in Lighting.lights)
-            {
-                var calculatedPosition = matrix * light.nominalPosition;
+            foreach (var light in ColorCalculation.lights)
+            { 
+                var calculatedPosition = projectionMatrix.Matrix * viewMatrix.Matrix * light.nominalPosition;
                 if (calculatedPosition[3] != 0)
                     for (int i = 0; i < 3; i++)
                         calculatedPosition[i] /= calculatedPosition[3];
@@ -125,6 +116,9 @@ namespace GK3D
                     (calculatedPosition[1] + 1) * pictureBox.Height / 2,
                     -(calculatedPosition[2] - 1) * 1000
                 });
+
+                //canvas.SetPixel((int)light.actualPosition[0], (int)light.actualPosition[1], Color.White);
+                //Drawing.zBuffor[(int)light.actualPosition[0], (int)light.actualPosition[1]] = 1000000;
             }
 
             model.Center = Vector<double>.Build.Dense(new double[3]
@@ -143,7 +137,10 @@ namespace GK3D
             //Parallel.ForEach(model.Triangles, triangle => canvas.Fill(triangle, model));
 
             foreach (var triangle in model.Triangles)
-                canvas.Fill(triangle, model);
+            {
+                try { canvas.Fill(triangle, model); }
+                catch { }
+            }
 
             //var tasks = model.Triangles.Select(triangle => Task.Run(() => canvas.Fill(triangle, model)));
             //Task.WhenAll(tasks).Wait();

@@ -5,43 +5,70 @@ using System.Drawing;
 
 namespace GK3D
 {
-    public static class Lighting
+    public static class ColorCalculation
     {
         public static double ka = 0.2;
         public static double kd = 0.7;
         public static double ks = 1;
+        public static int m = 8;
+        public static int p = 30;
 
         public static Vector<double> cameraPosition;
 
         public static List<Light> lights;
 
-        public static Color CalculateColor(Vector<double> coordinates, Vector<double> N, Color color)
+        public static Color Phong(Vector<double> coordinates, Vector<double> N, Color color)
         {
-            int m = lights.Count;
-
-            double red = ka * color.R / 255;
-            double green = ka * color.G / 255;
-            double blue = ka * color.B / 255;
+            double red = ka * color.R;
+            double green = ka * color.G;
+            double blue = ka * color.B;
 
             foreach (var light in lights)
             {
-                var L = (coordinates - light.actualPosition).Normalize(2);
-                var V = (coordinates - cameraPosition).Normalize(2);
-                var R = 2 * MathExtensions.Cos(N, L) * N - L;
+                var L = (light.actualPosition - coordinates).Normalize(2);
+                var V = (cameraPosition - coordinates).Normalize(2);
+                var R = (2 * MathExtensions.Cos(N, L) * N - L).Normalize(2);
 
-                var lightCulaculations = kd * MathExtensions.Cos(N, L) + ks * Math.Pow(MathExtensions.Cos(R, V), m);
+                var diffusedCosine = MathExtensions.Cos(N, L);
+                var specularCosine = Positive(MathExtensions.Cos(R, V));
+                var lightCulaculations = kd * diffusedCosine + ks * Math.Pow(specularCosine, m);
 
-                red += color.R / 255.0 * light.color.R / 255.0 * lightCulaculations;
-                green += color.G / 255.0 * light.color.G / 255.0 * lightCulaculations;
-                blue += color.B / 255.0 * light.color.B / 250.0 * lightCulaculations;
+                var multiplier = 1.0;
+
+                if (light.type == LightType.Spot)
+                {
+                    var spotCos = MathExtensions.Cos(L, light.direction);
+                    if (spotCos > 0)
+                        multiplier = Math.Pow(spotCos, p);
+                    else
+                        multiplier = 0;
+                }
+
+                red += multiplier * color.R * light.color.R / 255.0 * lightCulaculations;
+                green += multiplier * color.G * light.color.G / 255.0 * lightCulaculations;
+                blue += multiplier * color.B * light.color.B / 250.0 * lightCulaculations;
             }
 
-            return Color.FromArgb(ConvertTo256(red), ConvertTo256(green), ConvertTo256(blue));
+            return Color.FromArgb(Trim(red), Trim(green), Trim(blue));
         }
 
-        private static int ConvertTo256(double color)
+        private static double Positive(double value)
         {
-            return (int)Math.Round((color < 0 ? 0 : (color > 1 ? 1 : color)) * 255);
+            return value < 0 ? 0 : value;
+        }
+
+        public static Color Gouraud(Color[] colors, Triangle triangle)
+        {
+            double red = triangle.w0 * colors[0].R + triangle.w1 * colors[1].R + triangle.w2 * colors[2].R;
+            double green = triangle.w0 * colors[0].G + triangle.w1 * colors[1].G + triangle.w2 * colors[2].G;
+            double blue = triangle.w0 * colors[0].B + triangle.w1 * colors[1].B + triangle.w2 * colors[2].B;
+
+            return Color.FromArgb(Trim(red), Trim(green), Trim(blue));
+        }
+
+        private static int Trim(double color)
+        {
+            return (int)Math.Round(color < 0 ? 0 : (color > 255 ? 255 : color));
         }
     }
 }

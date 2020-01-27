@@ -11,10 +11,10 @@ namespace GK3D
     public class ViewMatrix
     {
         private Vector<double> cameraPosition = DefaultCameraPosition;
-        private Vector<double> cameraTarget = Vector<double>.Build.Dense(new double[3] { 0, 0.5, 0.5 });
+        private Vector<double> cameraTarget = Vector<double>.Build.Dense(new double[3] { 0, 0, 0 });
         private Vector<double> upVector = Vector<double>.Build.Dense(new double[3] { 0, 0, 1 });
 
-        public static readonly Vector<double> DefaultCameraPosition = Vector<double>.Build.Dense(new double[3] { 4, 0.5, 0.5 });
+        public static readonly Vector<double> DefaultCameraPosition = Vector<double>.Build.Dense(new double[3] { 5, 0, -2 });
 
         public Vector<double> CameraPosition
         {

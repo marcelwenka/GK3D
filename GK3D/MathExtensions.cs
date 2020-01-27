@@ -24,14 +24,14 @@ namespace GK3D
             return v1.X * v2.X + v1.Y * v2.Y + v1.Z * v2.Z;
         }
 
-        public static double Length(Vertex v)
+        public static double Length3D(this Vector<double> v)
         {
-            return Math.Sqrt(v.X * v.X + v.Y * v.Y + v.Z * v.Z);
+            return Math.Sqrt(v[0] * v[0] + v[1] * v[1] + v[2] * v[2]);
         }
 
         public static Vector<double> Normalize3D(this Vector<double> v)
         {
-            var length = Math.Sqrt(v[0] * v[0] + v[1] * v[1] + v[2] * v[2]);
+            var length = v.Length3D();
             v /= length;
             return v;
         }

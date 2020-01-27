@@ -10,6 +10,9 @@ namespace GK3D
     public class Triangle
     {
         public Vertex[] points;
+        public double w0;
+        public double w1;
+        public double w2;
 
         public Triangle(Vertex _p1, Vertex _p2, Vertex _p3)
         {
@@ -19,9 +22,9 @@ namespace GK3D
         public double Z(int x, int y)
         {
             double denominator = (points[1].Y - points[2].Y) * (points[0].X - points[2].X) + (points[2].X - points[1].X) * (points[0].Y - points[2].Y);
-            var w0 = ((points[1].Y - points[2].Y) * (x - points[2].X) + (points[2].X - points[1].X) * (y - points[2].Y)) / denominator;
-            var w1 = ((points[2].Y - points[0].Y) * (x - points[2].X) + (points[0].X - points[2].X) * (y - points[2].Y)) / denominator;
-            var w2 = 1 - w1 - w0;
+            w0 = ((points[1].Y - points[2].Y) * (x - points[2].X) + (points[2].X - points[1].X) * (y - points[2].Y)) / denominator;
+            w1 = ((points[2].Y - points[0].Y) * (x - points[2].X) + (points[0].X - points[2].X) * (y - points[2].Y)) / denominator;
+            w2 = 1 - w1 - w0;
 
             return w0 * points[0].Z + w1 * points[1].Z + w2 * points[2].Z;
         }

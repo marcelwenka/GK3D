@@ -13,6 +13,7 @@ namespace GK3D
     {
         public static double[,] zBuffor;
         public static bool drawLines = false;
+        public static ShaderType shaderType = ShaderType.Phong;
         public static int width;
         public static int height;
 
@@ -27,18 +28,54 @@ namespace GK3D
             var AET = new List<AETNode>();
             int k = 0;
 
-            //var vector1 = triangle.points[indexes[0]] - triangle.points[indexes[1]];
-            //var vector2 = triangle.points[indexes[2]] - triangle.points[indexes[1]];
-
-            //var cosine = Math.Abs(MathExtensions.DotProduct(vector1, vector2) / MathExtensions.Length(vector1) / MathExtensions.Length(vector2));
-
-            //if (cosine > 0.99)
-            //    return;
-
             Vector<double> N = null;
+
+            Color constantColor = Color.Empty;
+            Color[] gouraudColors = null;
 
             if (model is Cuboid)
                 N = (model as Cuboid).N(triangle);
+
+            switch (shaderType)
+            {
+                case ShaderType.Constant:
+                {
+                    var coordinates = Vector<double>.Build.Dense(new double[3]
+                    {
+                        (triangle.points[0].X + triangle.points[1].X + triangle.points[2].X) / 3.0,
+                        (triangle.points[0].Y + triangle.points[1].Y + triangle.points[2].Y) / 3.0,
+                        (triangle.points[0].Z + triangle.points[1].Z + triangle.points[2].Z) / 3.0
+                    });
+                    
+                    if (model is Sphere)
+                        N = (model as Sphere).N(coordinates[0], coordinates[1], coordinates[2]);
+                    
+                    constantColor = ColorCalculation.Phong(coordinates, N, model.Color);
+                    
+                    break;
+                }
+                case ShaderType.Gouraud:
+                {
+                    gouraudColors = new Color[3];
+
+                    for (int i = 0; i < 3; i++)
+                    {
+                        var coordinates = Vector<double>.Build.Dense(new double[3]
+                        {
+                            triangle.points[i].X,
+                            triangle.points[i].Y,
+                            triangle.points[i].Z
+                        });
+
+                        if (model is Sphere)
+                            N = (model as Sphere).N(coordinates[0], coordinates[1], coordinates[2]);
+
+                        gouraudColors[i] = ColorCalculation.Phong(coordinates, N, model.Color);
+                    }
+
+                    break;
+                }
+            }
 
             int lowerBound = triangle.points[indexes[0]].Y;
             int upperBound = triangle.points[indexes[2]].Y >= bitmap.Height ? bitmap.Height - 1 : triangle.points[indexes[2]].Y;
@@ -106,13 +143,23 @@ namespace GK3D
                         {
                             zBuffor[x, y] = z;
 
-                            if (model.GetType() == typeof(Sphere))
-                                N = (model as Sphere).N(x, y, (int)z);
-
-                            Vector<double> coordinates = Vector<double>.Build.Dense(new double[3] { x, y, z });
-
-                            bitmap.SetPixel(x, y, Lighting.CalculateColor(coordinates, N, model.Color));
-                            //bitmap.SetPixel(x, y, Color.Navy);
+                            switch (shaderType)
+                            {
+                                case ShaderType.Constant:
+                                    bitmap.SetPixel(x, y, constantColor);
+                                    break;
+                                case ShaderType.Gouraud:
+                                    Color gouraudColor = ColorCalculation.Gouraud(gouraudColors, triangle);
+                                    bitmap.SetPixel(x, y, gouraudColor);
+                                    break;
+                                case ShaderType.Phong:
+                                    Vector<double> coordinates = Vector<double>.Build.Dense(new double[3] { x, y, z });
+                                    if (model is Sphere)
+                                        N = (model as Sphere).N(x, y, (int)z);
+                                    Color phongColor = ColorCalculation.Phong(coordinates, N, model.Color);
+                                    bitmap.SetPixel(x, y, phongColor);
+                                    break;
+                            }
                         }
                     }
                 }

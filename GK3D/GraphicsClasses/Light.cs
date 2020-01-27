@@ -13,5 +13,8 @@ namespace GK3D
         public Vector<double> nominalPosition;
         public Vector<double> actualPosition;
         public Color color;
+
+        public LightType type;
+        public Vector<double> direction;
     }
 }

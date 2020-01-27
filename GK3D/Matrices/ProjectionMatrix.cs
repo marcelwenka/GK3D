@@ -12,7 +12,7 @@ namespace GK3D
     {
         public double _n = 1;
         public double _f = 100;
-        public double _fov = 33.333;
+        public double _fov = 0.55 * Math.PI;
         private double _e;
         public double _a;
 

@@ -18,8 +18,16 @@ namespace GK3D
             {
                 new Light()
                 {
-                    nominalPosition = Vector<double>.Build.Dense(new double[4] { -4.5, -0.5, 0, 1 }),
-                    color = Color.FromArgb(255, 240, 188)
+                    nominalPosition = Vector<double>.Build.Dense(new double[4] { -5, 0, 5, 1 }),
+                    color = Color.FromArgb(255, 240, 188),
+                    type = LightType.Point
+                },
+                new Light()
+                {
+                    nominalPosition = Vector<double>.Build.Dense(new double[4] { -3, 0, 0, 1 }),
+                    color = Color.DarkTurquoise,
+                    type = LightType.Spot,
+                    direction = Vector<double>.Build.Dense(new double[3] { 1, 0, 0 }).Normalize(2)
                 }
             };
         }
@@ -28,26 +36,36 @@ namespace GK3D
         {
             var initialModels = new List<IModel>();
 
-            var matrix1 = DenseMatrix.OfArray(
+            var cuboid1Matrix = DenseMatrix.OfArray(
                 new double[4, 4]
                 {
                     { 1, 0, 0, 0 },
-                    { 0, 1, 0, 0 },
+                    { 0, 1, 0, -0.5 },
                     { 0, 0, 1, 0 },
                     { 0, 0, 0, 1 }
                 }
             );
-            var matrix2 = DenseMatrix.OfArray(
+            var cuboid2Matrix = DenseMatrix.OfArray(
                 new double[4, 4]
                 {
                     { 1, 0, 0, 2 },
-                    { 0, 1, 0, 1 },
+                    { 0, 1, 0, -2 },
                     { 0, 0, 1, 1 },
                     { 0, 0, 0, 1 }
                 }
             );
 
-            var points1 = new List<Vector<double>>()
+            var sphereMatrix = DenseMatrix.OfArray(
+                new double[4, 4]
+                {
+                    { 1, 0, 0, 1 },
+                    { 0, 1, 0, 2 },
+                    { 0, 0, 1, 0 },
+                    { 0, 0, 0, 1 }
+                }
+            );
+
+            var cuboid1Points = new List<Vector<double>>()
             {
                 Vector<double>.Build.Dense(new double[4] { -1, -1, -1, 1 }),
                 Vector<double>.Build.Dense(new double[4] { 1, -1, -1, 1 }),
@@ -59,7 +77,7 @@ namespace GK3D
                 Vector<double>.Build.Dense(new double[4] { -1, 1, 1, 1 })
             };
 
-            var points2 = new List<Vector<double>>()
+            var cuboid2Points = new List<Vector<double>>()
             {
                 Vector<double>.Build.Dense(new double[4] { -0.5, -0.5, -0.5, 1 }),
                 Vector<double>.Build.Dense(new double[4] { 0.5, -0.5, -0.5, 1 }),
@@ -71,21 +89,9 @@ namespace GK3D
                 Vector<double>.Build.Dense(new double[4] { -0.5, 0.5, 0.5, 1 })
             };
 
-
-            var matrix3 = DenseMatrix.OfArray(
-                new double[4, 4]
-                {
-                    { 1, 0, 0, 1.0 },
-                    { 0, 1, 0, 2.5 },
-                    { 0, 0, 1, 0 },
-                    { 0, 0, 0, 1 }
-                }
-            );
-
-            initialModels.Add(new Cuboid(points1, matrix1, Color.Aqua));
-            initialModels.Add(new Cuboid(points2, matrix2, Color.BlueViolet));
-
-            initialModels.Add(new Sphere(1.2, matrix3, Color.PaleGreen));
+            initialModels.Add(new Cuboid(cuboid1Points, cuboid1Matrix, Color.Gold));
+            initialModels.Add(new Cuboid(cuboid2Points, cuboid2Matrix, Color.DodgerBlue));
+            initialModels.Add(new Sphere(1.2, sphereMatrix, Color.Firebrick)); // Color.LimeGreen));
 
             return initialModels;
         }
