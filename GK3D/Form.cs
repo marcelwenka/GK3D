@@ -34,8 +34,8 @@ namespace GK3D
             shaderComboBox.DataSource = Enum.GetValues(typeof(ShaderType));
             shaderComboBox.SelectedIndex = 1;
 
-            width = pictureBox.Width;
-            height = pictureBox.Height;
+            canvasWidth = pictureBox.Width;
+            canvasHeight = pictureBox.Height;
             ReinitializeZBuffor();
 
             projectionMatrix = new ProjectionMatrix((double)pictureBox.Height / pictureBox.Width);

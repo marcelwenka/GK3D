@@ -16,8 +16,8 @@ namespace GK3D
 
         private void Form_Resize(object sender, EventArgs eventArgs)
         {
-            width = pictureBox.Width;
-            height = pictureBox.Height;
+            canvasWidth = pictureBox.Width;
+            canvasHeight = pictureBox.Height;
             ReinitializeZBuffor();
 
             projectionMatrix.a = (double)pictureBox.Height / pictureBox.Width;

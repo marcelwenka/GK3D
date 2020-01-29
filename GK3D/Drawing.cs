@@ -14,8 +14,8 @@ namespace GK3D
         double[,] zBuffor;
         bool drawTriangleEdges = false;
         ShaderType shaderType = ShaderType.Phong;
-        int width;
-        int height;
+        int canvasWidth;
+        int canvasHeight;
 
         public void Draw()
         {
@@ -97,7 +97,7 @@ namespace GK3D
 
         public void ReinitializeZBuffor()
         {
-            zBuffor = new double[width, height];
+            zBuffor = new double[canvasWidth, canvasHeight];
         }
 
         public void Fill(IModel model, Triangle triangle)
