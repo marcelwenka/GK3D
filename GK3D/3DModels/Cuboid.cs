@@ -20,8 +20,6 @@ namespace GK3D.Models
 
         public List<Triangle> Triangles { get; set; }
 
-        public Vector<double> Center { get; set; }
-
         public Vector<double> N(Triangle triangle)
         {
             var U = Vector<double>.Build.Dense(new double[3] { triangle.points[1].worldX - triangle.points[0].worldX, triangle.points[1].worldY - triangle.points[0].worldY, triangle.points[1].worldZ - triangle.points[0].worldZ });

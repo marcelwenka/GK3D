@@ -11,22 +11,22 @@ namespace GK3D
 
         private void shaderComboBox_SelectedIndexChanged(object sender, EventArgs e)
         {
-            Drawing.shaderType = (ShaderType)shaderComboBox.SelectedItem;
+            shaderType = (ShaderType)shaderComboBox.SelectedItem;
         }
 
         private void Form_Resize(object sender, EventArgs eventArgs)
         {
-            Drawing.width = pictureBox.Width;
-            Drawing.height = pictureBox.Height;
-            Drawing.ReinitializeZBuffor();
+            width = pictureBox.Width;
+            height = pictureBox.Height;
+            ReinitializeZBuffor();
 
             projectionMatrix.a = (double)pictureBox.Height / pictureBox.Width;
             canvas = new DirectBitmap(pictureBox.Width, pictureBox.Height);
         }
 
-        private void drawLinesCheckbox_CheckedChanged(object sender, EventArgs e)
+        private void drawTriangleEdgesCheckbox_CheckedChanged(object sender, EventArgs e)
         {
-            Drawing.drawLines = drawLinesCheckbox.Checked;
+            drawTriangleEdges = drawTriangleEdgesCheckbox.Checked;
         }
 
         private void parallelCheckbox_CheckedChanged(object sender, EventArgs e)

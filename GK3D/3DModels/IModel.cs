@@ -15,6 +15,5 @@ namespace GK3D.Models
         List<Vector<double>> Points { get; set; }
         Matrix<double> Matrix { get; set; }
         Color Color { get; set; }
-        Vector<double> Center { get; set; }
     }
 }

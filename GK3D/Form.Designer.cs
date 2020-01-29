@@ -7,19 +7,6 @@
         /// </summary>
         private System.ComponentModel.IContainer components = null;
 
-        /// <summary>
-        /// Clean up any resources being used.
-        /// </summary>
-        /// <param name="disposing">true if managed resources should be disposed; otherwise, false.</param>
-        protected override void Dispose(bool disposing)
-        {
-            if (disposing && (components != null))
-            {
-                components.Dispose();
-            }
-            base.Dispose(disposing);
-        }
-
         #region Windows Form Designer generated code
 
         /// <summary>
@@ -58,7 +45,7 @@
             this.kdLabel = new System.Windows.Forms.Label();
             this.shaderLabel = new System.Windows.Forms.Label();
             this.shaderComboBox = new System.Windows.Forms.ComboBox();
-            this.drawLinesCheckbox = new System.Windows.Forms.CheckBox();
+            this.drawTriangleEdgesCheckbox = new System.Windows.Forms.CheckBox();
             this.fpsNameLabel = new System.Windows.Forms.Label();
             this.fpsLabel = new System.Windows.Forms.Label();
             this.mainTableLayoutPanel.SuspendLayout();
@@ -109,7 +96,7 @@
             this.rightPanel.Controls.Add(this.cameraGroupBox);
             this.rightPanel.Controls.Add(this.parallelCheckbox);
             this.rightPanel.Controls.Add(this.lightingGroupBox);
-            this.rightPanel.Controls.Add(this.drawLinesCheckbox);
+            this.rightPanel.Controls.Add(this.drawTriangleEdgesCheckbox);
             this.rightPanel.Controls.Add(this.fpsNameLabel);
             this.rightPanel.Controls.Add(this.fpsLabel);
             this.rightPanel.Dock = System.Windows.Forms.DockStyle.Fill;
@@ -322,7 +309,7 @@
             this.pSlider.Size = new System.Drawing.Size(120, 21);
             this.pSlider.TabIndex = 16;
             this.pSlider.TickStyle = System.Windows.Forms.TickStyle.None;
-            this.pSlider.Value = 5;
+            this.pSlider.Value = 30;
             this.pSlider.ValueChanged += new System.EventHandler(this.pSlider_ValueChanged);
             // 
             // pLabel
@@ -330,9 +317,9 @@
             this.pLabel.AutoSize = true;
             this.pLabel.Location = new System.Drawing.Point(10, 159);
             this.pLabel.Name = "pLabel";
-            this.pLabel.Size = new System.Drawing.Size(25, 13);
+            this.pLabel.Size = new System.Drawing.Size(31, 13);
             this.pLabel.TabIndex = 15;
-            this.pLabel.Text = "p: 5";
+            this.pLabel.Text = "p: 30";
             // 
             // kaSlider
             // 
@@ -428,16 +415,16 @@
             this.shaderComboBox.TabIndex = 6;
             this.shaderComboBox.SelectedIndexChanged += new System.EventHandler(this.shaderComboBox_SelectedIndexChanged);
             // 
-            // drawLinesCheckbox
+            // drawTriangleEdgesCheckbox
             // 
-            this.drawLinesCheckbox.AutoSize = true;
-            this.drawLinesCheckbox.Location = new System.Drawing.Point(19, 43);
-            this.drawLinesCheckbox.Name = "drawLinesCheckbox";
-            this.drawLinesCheckbox.Size = new System.Drawing.Size(126, 17);
-            this.drawLinesCheckbox.TabIndex = 4;
-            this.drawLinesCheckbox.Text = "Draw triangle edges?";
-            this.drawLinesCheckbox.UseVisualStyleBackColor = true;
-            this.drawLinesCheckbox.CheckedChanged += new System.EventHandler(this.drawLinesCheckbox_CheckedChanged);
+            this.drawTriangleEdgesCheckbox.AutoSize = true;
+            this.drawTriangleEdgesCheckbox.Location = new System.Drawing.Point(19, 43);
+            this.drawTriangleEdgesCheckbox.Name = "drawTriangleEdgesCheckbox";
+            this.drawTriangleEdgesCheckbox.Size = new System.Drawing.Size(126, 17);
+            this.drawTriangleEdgesCheckbox.TabIndex = 4;
+            this.drawTriangleEdgesCheckbox.Text = "Draw triangle edges?";
+            this.drawTriangleEdgesCheckbox.UseVisualStyleBackColor = true;
+            this.drawTriangleEdgesCheckbox.CheckedChanged += new System.EventHandler(this.drawTriangleEdgesCheckbox_CheckedChanged);
             // 
             // fpsNameLabel
             // 
@@ -498,7 +485,7 @@
         private System.Windows.Forms.Label cameraLabel;
         private System.Windows.Forms.Label fpsLabel;
         private System.Windows.Forms.Label fpsNameLabel;
-        private System.Windows.Forms.CheckBox drawLinesCheckbox;
+        private System.Windows.Forms.CheckBox drawTriangleEdgesCheckbox;
         private System.Windows.Forms.ComboBox shaderComboBox;
         private System.Windows.Forms.Label shaderLabel;
         private System.Windows.Forms.GroupBox lightingGroupBox;

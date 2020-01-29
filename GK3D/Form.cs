@@ -15,8 +15,7 @@ namespace GK3D
 {
     public partial class Form : System.Windows.Forms.Form
     {
-        bool isIdle = true;
-        int actualfps = 0;
+        int currentfps = 0;
         readonly ProjectionMatrix projectionMatrix;
         readonly ViewMatrix viewMatrix;
         DirectBitmap canvas;
@@ -35,9 +34,9 @@ namespace GK3D
             shaderComboBox.DataSource = Enum.GetValues(typeof(ShaderType));
             shaderComboBox.SelectedIndex = 1;
 
-            Drawing.width = pictureBox.Width;
-            Drawing.height = pictureBox.Height;
-            Drawing.ReinitializeZBuffor();
+            width = pictureBox.Width;
+            height = pictureBox.Height;
+            ReinitializeZBuffor();
 
             projectionMatrix = new ProjectionMatrix((double)pictureBox.Height / pictureBox.Width);
             viewMatrix = new ViewMatrix();
@@ -46,98 +45,26 @@ namespace GK3D
             ColorCalculation.lights = Initializers.InitializeLights();
             ColorCalculation.cameraPosition = viewMatrix.CameraPosition;
 
-            _ = Animation();
+            _ = InitializeAnimation();
 
             fpsTimer = new Timer() { Interval = 1000 };
-            fpsTimer.Tick += (object sender, EventArgs eventArgs) => { fpsLabel.Text = $"{actualfps}"; actualfps = 0; };
+            fpsTimer.Tick += (object sender, EventArgs eventArgs) => { fpsLabel.Text = $"{currentfps}"; currentfps = 0; };
             fpsTimer.Start();
         }
 
-        public async Task Animation()
+        public async Task InitializeAnimation()
         {
-            while (true)
-                if (isIdle)
-                    await Task.Run(() => Animation(new object(), new EventArgs())).ContinueWith(task => isIdle = true);
+            await Task.Run(() => RunAnimation()).ContinueWith(task => InitializeAnimation());
         }
-
-        public void Draw()
+        protected override void Dispose(bool disposing)
         {
-            Drawing.ReinitializeZBuffor();
-
-            canvas.Clear(Color.Black);
-
-            if (parallel)
-                Parallel.ForEach(models, model => DrawModel(model));
-            else
-                foreach (var model in models)
-                    DrawModel(model);
-
-            pictureBox.Image = canvas.Bitmap;
-        }
-
-        public void DrawModel(IModel model)
-        {
-            var matrix = projectionMatrix.Matrix * viewMatrix.Matrix;
-            var projectionPoints = new List<Vertex>();
-
-            foreach (var point in model.Points)
+            if (disposing && (components != null))
             {
-                var worldPoint = model.Matrix * point;
-
-                var projectionPoint = matrix * worldPoint;
-
-                if (projectionPoint[3] != 0)
-                    for (int i = 0; i < 3; i++)
-                        projectionPoint[i] /= projectionPoint[3];
-                projectionPoint[3] = 1;
-
-                double x = (projectionPoint[0] + 1) * pictureBox.Width / 2;
-                double y = (projectionPoint[1] + 1) * pictureBox.Height / 2;
-
-                Vector<double> N = null;
-
-                if (model is Sphere)
-                    N = (model as Sphere).N(worldPoint[0], worldPoint[1], worldPoint[2]);
-
-                projectionPoints.Add(new Vertex()
-                {
-                    projectionX = (int)Math.Round(x),
-                    projectionY = (int)Math.Round(y),
-                    projectionZ = -(projectionPoint[2] - 1) * 1000,
-                    worldX = worldPoint[0],
-                    worldY = worldPoint[1],
-                    worldZ = worldPoint[2],
-                    N = N
-                });
+                components.Dispose();
             }
-
-            model.Triangles = model.TriangleIndexes.Select(indexes =>
-                new Triangle(
-                    projectionPoints[indexes.Item1].Clone(),
-                    projectionPoints[indexes.Item2].Clone(),
-                    projectionPoints[indexes.Item3].Clone())
-                ).ToList();
-
-            if (model is Cuboid)
-            {
-                foreach (Triangle triangle in model.Triangles)
-                {
-                    triangle.points[0].N = (model as Cuboid).N(triangle);
-                    triangle.points[1].N = (model as Cuboid).N(triangle);
-                    triangle.points[2].N = (model as Cuboid).N(triangle);
-                }
-            }
-
-            //Parallel.ForEach(model.Triangles, triangle => canvas.Fill(triangle, model));
-
-            foreach (var triangle in model.Triangles)
-            {
-                try // when resizing the window or changing from Phong to Gouraud some calculations are interrupted in the middle and an exception is thrown
-                {
-                    canvas.Fill(triangle, model);
-                }
-                catch { }
-            }
+            fpsTimer.Dispose();
+            canvas.Dispose();
+            base.Dispose(disposing);
         }
     }
 }

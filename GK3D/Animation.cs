@@ -14,11 +14,9 @@ namespace GK3D
         double movementSpeed = 0.1;
         double movementDirection = 1;
 
-        private void Animation(object sender, EventArgs eventArgs)
+        private void RunAnimation()
         {
-            isIdle = false;
-
-            actualfps++;
+            currentfps++;
 
             rotation += 0.01;
 
@@ -41,14 +39,17 @@ namespace GK3D
                 case CameraType.Fixed:
                     viewMatrix.CameraPosition = ViewMatrix.DefaultCameraPosition;
                     viewMatrix.CameraTarget = Vector<double>.Build.Dense(new double[3] { 0, 0.5, 0.5 });
+                    viewMatrix.ReCalculateMatrix();
                     break;
                 case CameraType.FollowingMoving:
                     viewMatrix.CameraPosition = ViewMatrix.DefaultCameraPosition + Vector<double>.Build.Dense(new double[3] { models[1].Matrix[0, 3], models[1].Matrix[1, 3], models[1].Matrix[2, 3] });
                     viewMatrix.CameraTarget = Vector<double>.Build.Dense(new double[3] { models[1].Matrix[0, 3], models[1].Matrix[1, 3], models[1].Matrix[2, 3] });
+                    viewMatrix.ReCalculateMatrix();
                     break;
                 case CameraType.FollowingFixed:
                     viewMatrix.CameraPosition = ViewMatrix.DefaultCameraPosition;
                     viewMatrix.CameraTarget = Vector<double>.Build.Dense(new double[3] { models[1].Matrix[0, 3], models[1].Matrix[1, 3], models[1].Matrix[2, 3] });
+                    viewMatrix.ReCalculateMatrix();
                     break;
             }
 

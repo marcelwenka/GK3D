@@ -12,7 +12,6 @@ namespace GK3D
     {
         public Vector<double> position;
         public Color color;
-
         public LightType type;
         public Vector<double> direction;
     }

@@ -32,7 +32,7 @@ namespace GK3D
             return w0 * points[0].projectionZ + w1 * points[1].projectionZ + w2 * points[2].projectionZ;
         }
 
-        public double[] interpolateXYZ(double w0, double w1, double w2)
+        public double[] InterpolateXYZ(double w0, double w1, double w2)
         {
             return new double[3]
             {
@@ -42,7 +42,7 @@ namespace GK3D
             };
         }
 
-        public Vector<double> interpolateN(double w0, double w1, double w2)
+        public Vector<double> InterpolateN(double w0, double w1, double w2)
         {
             return w0 * points[0].N + w1 * points[1].N + w2 * points[2].N;
         }
@@ -103,12 +103,12 @@ namespace GK3D
             return indexes;
         }
 
-        public static int prev(int k)
+        public static int Prev(int k)
         {
             return k - 1 < 0 ? 2 : k - 1;
         }
 
-        public static int next(int k)
+        public static int Next(int k)
         {
             return k + 1 > 2 ? 0 : k + 1;
         }
